@@ -1,0 +1,53 @@
+
+import ast
+import inspect
+import logging
+
+from ._config import ast_module
+from .recursive_ast_transformer import RecursiveAstTransformer
+from .type_comment_transformer import TypeCommentTransformer
+from .type_annotation_transformer import TypeAnnotationTransformer
+from .statically_typed_ast import StaticallyTyped, \
+    StaticallyTypedFor, StaticallyTypedWhile, StaticallyTypedIf, StaticallyTypedFunctionDef
+
+_LOG = logging.getLogger(__name__)
+
+
+def add_static_type_info(node: ast_module.AST) -> StaticallyTyped:
+    """Introduce static typing information to compatible nodes of the AST."""
+
+    if isinstance(node, ast_module.For):
+        return StaticallyTypedFor.clone(node)
+
+    if isinstance(node, ast_module.While):
+        return StaticallyTypedWhile.clone(node)
+
+    if isinstance(node, ast_module.If):
+        return StaticallyTypedIf.clone(node)
+
+    if isinstance(node, ast_module.FunctionDef):
+        return StaticallyTypedFunctionDef.clone(node)
+
+    return node
+
+def parse(source: str, *args, globals_=None, locals_=None, **kwargs) -> ast_module.AST:
+
+    if not isinstance(source, str):
+        source = inspect.getsource(source)
+
+    tree = ast_module.parse(source)
+    _LOG.debug('%s', ast_module.dump(tree))
+
+    comment_transformer = TypeCommentTransformer[ast_module, ast](globals_=globals_, locals_=locals_)
+    comment_tree = comment_transformer.visit(tree)
+    _LOG.debug('%s', ast_module.dump(comment_tree))
+
+    comment_transformer = TypeAnnotationTransformer[ast_module, ast](globals_=globals_, locals_=locals_)
+    annotation_tree = comment_transformer.visit(comment_tree)
+    _LOG.debug('%s', ast_module.dump(annotation_tree))
+
+    typer = RecursiveAstTransformer[ast_module](transformer=add_static_type_info)
+    typed_tree = typer.visit(annotation_tree)
+    _LOG.debug('%s', ast_module.dump(typed_tree))
+
+    return typed_tree
