@@ -102,13 +102,17 @@ class StaticallyTypedFunctionDef(ast_module.FunctionDef, StaticallyTyped):
                                 self._update_annotation(elt.id, node.type_comment)
                         #raise NotImplementedError((node.__class__, dict(typed_ast.ast3.iter_fields(node))))
                     """
-            elif isinstance(node, typed_ast.ast3.AnnAssign):
-                assert isinstance(node.target, typed_ast.ast3.Name)
+            elif isinstance(node, ast_module.AnnAssign):
+                assert isinstance(node.target, ast_module.Name)
                 self.add_type_info(node.target.id, node.annotation)
-            elif isinstance(node, typed_ast.ast3.For):
-                assert isinstance(node.target, typed_ast.ast3.Name)
+            elif isinstance(node, ast_module.For):
+                assert isinstance(node.target, ast_module.Name)
                 self.add_type_info(node.target.id, node.type_comment)
                 #raise NotImplementedError((node.__class__, dict(typed_ast.ast3.iter_fields(node))))
             #print(node.__class__, dict(typed_ast.ast3.iter_fields(node)))
         #typed_ast.ast3.AST.visit
         #visitor.visit(self)
+
+class StaticallyTypedClassDef(ast_module.ClassDef, StaticallyTyped):
+
+    pass

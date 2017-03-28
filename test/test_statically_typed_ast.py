@@ -15,7 +15,7 @@ class StaticallyTypedFunctionDefTests(unittest.TestCase):
     """Unit tests for StaticallyTypedFunctionDef class."""
 
     def test_parse_examples(self):
-        """Unparse ASTs of examples correctly."""
+        """Parse ASTs of examples correctly."""
         for description, example in EXAMPLES.items():
             if example['type'] == 'function':
                 typed_tree = st.parse(example['function'], globals_=globals(), locals_=locals())

@@ -72,8 +72,30 @@ function2_reference = {
     'c': st.ndarray[2, float],
     'd': st.ndarray[2, float]}
 
+def function3():
+    spam, ham, eggs = '', 0, 0.0 # type: str , int , float
+    spam, ham, eggs = '', 0, 0.0 # type: ( str , int , float )
+    spam, ham, eggs = '', 0, 0.0 # type: ( ( str , int , float ) )
+    spam, (ham, eggs) = '', 0, 0.0 # type: str , ( int , float )
+    spam, (ham, eggs) = '', 0, 0.0 # type: str , ( int , float )
+    (spam, ham), eggs = '', 0, 0.0 # type: ( str , int ) , float
+    #' spam , ( ( ham , bacon ) , eggs ) , sausage , beans',
+    ' spam , ( ham , ( bacon , eggs ) ) , sausage , beans ',
+    #' spam , ( ham , ( bacon , eggs ) , sausage ) , beans ',
+    spam , (ham, eggs), (sausage, bacon) = '', 0, 0.0, True, None # type: str, (int, float), bool, object
+    ' ( spam , ham ) , eggs , ( sausage , bacon ) '
+
+function3_reference = {
+    'spam': str,
+    'ham': int,
+    'eggs': float,
+    'sausage': bool,
+    'bacon': object}
+
 EXAMPLES = {
-    'function with simple types': {
+    'function with built-in types': {
         'type': 'function', 'function': function1, 'reference': function1_reference},
-    'function with complex types': {
-        'type': 'function', 'function': function2, 'reference': function2_reference}}
+    'function with eternal types': {
+        'type': 'function', 'function': function2, 'reference': function2_reference},
+    'function with complex type annotations': {
+        'type': 'function', 'function': function3, 'reference': function3_reference}}
