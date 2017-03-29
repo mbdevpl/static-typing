@@ -17,14 +17,16 @@ class StaticallyTypedFunctionDefTests(unittest.TestCase):
     def test_parse_examples(self):
         """Parse ASTs of examples correctly."""
         for description, example in EXAMPLES.items():
-            if example['type'] == 'function':
-                typed_tree = st.parse(example['function'], globals_=globals(), locals_=locals())
-                self.assertEqual(
-                    len(typed_tree.body[0].local_vars), len(example['reference']),
-                    (description, len(typed_tree.body[0].local_vars), len(example['reference'])))
-                self.assertEqual(
-                    typed_tree.body[0].local_vars, example['reference'],
-                    (description, typed_tree.body[0].local_vars, example['reference']))
+            with self.subTest(msg=description, example=example):
+                if example['type'] == 'function':
+                    typed_tree = st.parse(example['function'], globals_=globals(), locals_=locals())
+                    type_info = typed_tree.body[0].type_info
+                    self.assertEqual(
+                        len(type_info), len(example['reference']),
+                        (description, len(type_info), len(example['reference'])))
+                    self.assertEqual(
+                        type_info, example['reference'],
+                        (description, type_info, example['reference']))
                 '''
                 for (name, var), (ref_name, ref_var) in zip(typed_tree.body[0].local_vars.items(), reference.items()):
                     print(name, ref_name, ':', var, ref_var)

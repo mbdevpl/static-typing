@@ -2,7 +2,9 @@
 import ast
 import logging
 import typing as t
-import warnings
+#import warnings
+
+import ordered_set
 
 from ._config import ast_module
 #from .ast_transcriber import AstTranscriber
@@ -17,16 +19,14 @@ class StaticallyTyped(ast_module.AST):
         node_fields = {k: v for k, v in ast_module.iter_fields(node)}
         return cls(**node_fields)
 
-    @classmethod
-    def clone(cls, node: ast_module.AST):
-        warnings.warn('use from_other instead', FutureWarning)
-        node_fields = {k: v for k, v in ast_module.iter_fields(node)}
-        return cls(**node_fields)
+    #def __init__(self, *args, **kwargs):
+    #    super().__init__(*args, **kwargs)
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def add_type_info(self):
+        raise NotImplementedError()
 
-    def add_type_info(self, *args, **kwargs):
+    @property
+    def type_info(self):
         raise NotImplementedError()
 
 class StaticallyTypedFor(ast_module.For, StaticallyTyped):
@@ -36,7 +36,8 @@ class StaticallyTypedFor(ast_module.For, StaticallyTyped):
         self.scope_vars = {}
         self.add_type_info()
 
-    pass
+    def add_type_info(self):
+        pass
 
 class StaticallyTypedWhile(ast_module.While, StaticallyTyped):
 
@@ -45,7 +46,8 @@ class StaticallyTypedWhile(ast_module.While, StaticallyTyped):
         self.scope_vars = {}
         self.add_type_info()
 
-    pass
+    def add_type_info(self):
+        pass
 
 class StaticallyTypedIf(ast_module.If, StaticallyTyped):
 
@@ -55,7 +57,8 @@ class StaticallyTypedIf(ast_module.If, StaticallyTyped):
         self.if_false_vars = {}
         self.add_type_info()
 
-    pass
+    def add_type_info(self):
+        pass
 
 class StaticallyTypedFunctionDef(ast_module.FunctionDef, StaticallyTyped):
 
@@ -64,14 +67,23 @@ class StaticallyTypedFunctionDef(ast_module.FunctionDef, StaticallyTyped):
         #self.type_info = {'vars': {}, 'scopes': []}
         self.local_vars = {}
         #self.scopes = []
-        self.augment()
+        self.add_type_info()
 
-    def add_type_info(self, var_name: str, type_info: t.Any, scope: t.Any=None):
-        if var_name in self.local_vars:
-            if type_info is None:
-                return
-            if self.local_vars[var_name] is not None:
-                raise NotImplementedError()
+    @property
+    def type_info(self):
+        return {k: tuple(v) for k, v in self.local_vars.items()}
+
+    def _add_local_var(self, var_name: str, type_info: t.Any, scope: t.Any=None):
+        if var_name not in self.local_vars:
+            self.local_vars[var_name] = ordered_set.OrderedSet()
+        var_type_info = self.local_vars[var_name]
+        if type_info is not None:
+            var_type_info.add(type_info)
+        #if var_name in self.local_vars:
+        #    if type_info is None:
+        #        return
+        #    if self.local_vars[var_name] is not None:
+        #        raise NotImplementedError()
         '''
         if type_info is not None:
             if isinstance(type_info, ast_module.AST):
@@ -81,13 +93,13 @@ class StaticallyTypedFunctionDef(ast_module.FunctionDef, StaticallyTyped):
                 type_info = compile(ast.Expression(body=type_info), '<type-info>', 'eval')
                 type_info = eval(type_info)
         #'''
-        self.local_vars[var_name] = type_info
+        #self.local_vars[var_name] = type_info
 
     def _create_annotation_for(self, target, comment):
         if not isinstance(target, ast_module.Tuple):
             assert isinstance(target, ast_module.Name)
             #annotation = root_node.annotation if hasattr(root_node, 'annotation') else root_node.type_comment
-            self.add_type_info(target.id, comment)
+            self._add_local_var(target.id, comment)
             return
         if comment is None:
             comment = ast_module.Tuple(elts=[None for _ in target.elts])
@@ -95,11 +107,11 @@ class StaticallyTypedFunctionDef(ast_module.FunctionDef, StaticallyTyped):
             for elt, cmnt in zip(target.elts, comment):
                 self._create_annotation_for(elt, cmnt)
             return
-        assert isinstance(comment, (ast.Tuple, ast_module.Tuple)), type(comment)
+        assert isinstance(comment, (ast.Tuple, ast_module.Tuple)), (type(comment), comment)
         for elt, cmnt in zip(target.elts, comment.elts):
             self._create_annotation_for(elt, cmnt)
 
-    def augment(self):
+    def add_type_info(self):
         #for node in typed_ast.ast3.iter_child_nodes(self):
         #    print(node.__class__, dict(typed_ast.ast3.iter_fields(node)))
         #print('walk')
@@ -127,10 +139,10 @@ class StaticallyTypedFunctionDef(ast_module.FunctionDef, StaticallyTyped):
                     """
             elif isinstance(node, ast_module.AnnAssign):
                 assert isinstance(node.target, ast_module.Name)
-                self.add_type_info(node.target.id, node.annotation)
+                self._add_local_var(node.target.id, node.annotation)
             elif isinstance(node, ast_module.For):
                 assert isinstance(node.target, ast_module.Name)
-                self.add_type_info(node.target.id, node.type_comment)
+                self._add_local_var(node.target.id, node.type_comment)
                 #raise NotImplementedError((node.__class__, dict(typed_ast.ast3.iter_fields(node))))
             #print(node.__class__, dict(typed_ast.ast3.iter_fields(node)))
         #typed_ast.ast3.AST.visit

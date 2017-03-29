@@ -30,35 +30,35 @@ def function1():
         z = object() # type: object
 
 function1_reference = {
-    'a': None,
-    'b': float,
-    'c': str,
-    'd': int,
-    'e': float,
-    'f': int,
-    'g': None,
-    'h': None,
-    'i': int,
-    'j': float,
-    'k': int,
-    'l': float,
-    'm': None,
-    'n': None,
-    'o': None,
-    'p': int,
-    'r': float,
-    's': str,
-    't': int,
-    'u': float,
-    'v': str,
-    'w': None,
-    'w1': None,
-    'w2': None,
-    'x': str,
-    'x1': str,
-    'x2': str,
-    'y': int,
-    'z': object}
+    'a': (),
+    'b': (float,),
+    'c': (str,),
+    'd': (int,),
+    'e': (float,),
+    'f': (int,),
+    'g': (),
+    'h': (),
+    'i': (int,),
+    'j': (float,),
+    'k': (int,),
+    'l': (float,),
+    'm': (),
+    'n': (),
+    'o': (),
+    'p': (int,),
+    'r': (float,),
+    's': (str,),
+    't': (int,),
+    'u': (float,),
+    'v': (str,),
+    'w': (),
+    'w1': (),
+    'w2': (),
+    'x': (str,),
+    'x1': (str,),
+    'x2': (str,),
+    'y': (int,),
+    'z': (object,)}
 
 def function2():
     a: t.List[int] = [0, 1]
@@ -67,10 +67,10 @@ def function2():
     d = None # type: st.ndarray[2, float]
 
 function2_reference = {
-    'a': t.List[int],
-    'b': t.List[int],
-    'c': st.ndarray[2, float],
-    'd': st.ndarray[2, float]}
+    'a': (t.List[int],),
+    'b': (t.List[int],),
+    'c': (st.ndarray[2, float],),
+    'd': (st.ndarray[2, float],)}
 
 def function3():
     spam, ham, eggs = '', 0, 0.0 # type: str , int , float
@@ -79,18 +79,41 @@ def function3():
     spam, (ham, eggs) = '', 0, 0.0 # type: str , ( int , float )
     spam, (ham, eggs) = '', 0, 0.0 # type: str , ( int , float )
     (spam, ham), eggs = '', 0, 0.0 # type: ( str , int ) , float
-    #' spam , ( ( ham , bacon ) , eggs ) , sausage , beans',
-    ' spam , ( ham , ( bacon , eggs ) ) , sausage , beans ',
-    #' spam , ( ham , ( bacon , eggs ) , sausage ) , beans ',
-    spam , (ham, eggs), (sausage, bacon) = '', 0, 0.0, True, None # type: str, (int, float), bool, object
-    ' ( spam , ham ) , eggs , ( sausage , bacon ) '
 
 function3_reference = {
-    'spam': str,
-    'ham': int,
-    'eggs': float,
-    'sausage': bool,
-    'bacon': object}
+    'spam': (str,),
+    'ham': (int,),
+    'eggs': (float,)}
+
+def function4a():
+    spam , ( ( ham , bacon ) , eggs ) , sausage , beans = '', 0, 0.0, True, None, b'' # type: str, ((int, float), bool), object, bytes
+
+def function4b():
+    spam , ( ham , ( bacon , eggs ) ) , sausage , beans = '', 0, 0.0, True, None, b'' # type: str, (int, (float, bool)), object, bytes
+
+def function4c():
+    spam , ( ham , ( bacon , eggs ) , sausage ) , beans = '', 0, 0.0, True, None, b'' # type: str, (int, (float, bool), object), bytes
+
+function4_reference = {
+    'spam': (str,),
+    'ham': (int,),
+    'eggs': (float,),
+    'sausage': (bool,),
+    'bacon': (object,),
+    'beans': (bytes,)}
+
+def function5a():
+    spam , (ham, eggs), (sausage, bacon) = '', 0, 0.0, True, None # type: str, (int, float), bool, object
+
+def function5b():
+    (spam, ham), eggs, (sausage, bacon) = '', 0, 0.0, True, None # type: (str, int), float, (bool, object)
+
+function5_reference = {
+    'spam': (str,),
+    'ham': (int,),
+    'eggs': (float,),
+    'sausage': (bool,),
+    'bacon': (object,)}
 
 EXAMPLES = {
     'function with built-in types': {
@@ -98,4 +121,14 @@ EXAMPLES = {
     'function with eternal types': {
         'type': 'function', 'function': function2, 'reference': function2_reference},
     'function with complex type annotations': {
-        'type': 'function', 'function': function3, 'reference': function3_reference}}
+        'type': 'function', 'function': function3, 'reference': function3_reference},
+    'function with very complex type annotations': {
+        'type': 'function', 'function': function4a, 'reference': function4_reference},
+    'function with very complex type annotations': {
+        'type': 'function', 'function': function4b, 'reference': function4_reference},
+    'function with very complex type annotations': {
+        'type': 'function', 'function': function4c, 'reference': function4_reference},
+    'function with very complex type annotations': {
+        'type': 'function', 'function': function5a, 'reference': function5_reference},
+    'function with very complex type annotations': {
+        'type': 'function', 'function': function5b, 'reference': function5_reference}}

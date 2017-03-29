@@ -8,7 +8,8 @@ from .recursive_ast_transformer import RecursiveAstTransformer
 from .type_comment_transformer import TypeCommentTransformer
 from .type_annotation_transformer import TypeAnnotationTransformer
 from .statically_typed_ast import StaticallyTyped, \
-    StaticallyTypedFor, StaticallyTypedWhile, StaticallyTypedIf, StaticallyTypedFunctionDef
+    StaticallyTypedFor, StaticallyTypedWhile, StaticallyTypedIf, StaticallyTypedFunctionDef, \
+    StaticallyTypedClassDef
 
 _LOG = logging.getLogger(__name__)
 
@@ -16,17 +17,12 @@ _LOG = logging.getLogger(__name__)
 def add_static_type_info(node: ast_module.AST) -> StaticallyTyped:
     """Introduce static typing information to compatible nodes of the AST."""
 
-    if isinstance(node, ast_module.For):
-        return StaticallyTypedFor.clone(node)
-
-    if isinstance(node, ast_module.While):
-        return StaticallyTypedWhile.clone(node)
-
-    if isinstance(node, ast_module.If):
-        return StaticallyTypedIf.clone(node)
-
-    if isinstance(node, ast_module.FunctionDef):
-        return StaticallyTypedFunctionDef.clone(node)
+    nodes_to_be_typed = {
+        ast_module.For, ast_module.While, ast_module.If, ast_module.FunctionDef,
+        ast_module.ClassDef}
+    node_type = type(node)
+    if node_type in nodes_to_be_typed:
+        return globals()[f'StaticallyTyped{node_type.__name__}'].from_other(node)
 
     return node
 
