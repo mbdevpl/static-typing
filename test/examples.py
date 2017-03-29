@@ -115,20 +115,63 @@ function5_reference = {
     'sausage': (bool,),
     'bacon': (object,)}
 
+def function6():
+    spam: bool = True
+    if spam:
+        ham: str = ''
+    else:
+        ham: int = 0
+
+function6_reference = {
+    'spam': (bool,),
+    'ham': (str, int)}
+
+def function7():
+    spam, ham = ham, spam = None, None # type: int, str
+
+function7_reference = {
+    'spam': (int, str),
+    'ham': (str, int)}
+
+class class1:
+    x = 0
+    def __init__(self):
+        pass
+    def do_nothing(self) -> None:
+        pass
+    @classmethod
+    def do_something(cls) -> bool:
+        return True
+    @staticmethod
+    def make_noise() -> str:
+        return 'noise'
+
+class1_reference = {
+    '__init__',
+    'do_nothing',
+    'do_something',
+    'make_noise'}
+
 EXAMPLES = {
     'function with built-in types': {
-        'type': 'function', 'function': function1, 'reference': function1_reference},
-    'function with eternal types': {
-        'type': 'function', 'function': function2, 'reference': function2_reference},
+        'function': function1, 'reference': function1_reference},
+    'function with external types': {
+        'function': function2, 'reference': function2_reference},
     'function with complex type annotations': {
-        'type': 'function', 'function': function3, 'reference': function3_reference},
+        'function': function3, 'reference': function3_reference},
     'function with very complex type annotations': {
-        'type': 'function', 'function': function4a, 'reference': function4_reference},
+        'function': function4a, 'reference': function4_reference},
     'function with very complex type annotations': {
-        'type': 'function', 'function': function4b, 'reference': function4_reference},
+        'function': function4b, 'reference': function4_reference},
     'function with very complex type annotations': {
-        'type': 'function', 'function': function4c, 'reference': function4_reference},
+        'function': function4c, 'reference': function4_reference},
     'function with very complex type annotations': {
-        'type': 'function', 'function': function5a, 'reference': function5_reference},
+        'function': function5a, 'reference': function5_reference},
     'function with very complex type annotations': {
-        'type': 'function', 'function': function5b, 'reference': function5_reference}}
+        'function': function5b, 'reference': function5_reference},
+    'function with conflicting types in branches': {
+        'function': function6, 'reference': function6_reference},
+    'function with type-annotated value swap': {
+        'function': function7, 'reference': function7_reference},
+    'very simple class': {
+        'class': class1, 'reference': class1_reference}}
