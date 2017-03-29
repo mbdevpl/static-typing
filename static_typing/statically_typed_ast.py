@@ -2,25 +2,69 @@
 import ast
 import logging
 import typing as t
-
-import typed_ast
+import warnings
 
 from ._config import ast_module
-from .ast_transcriber import AstTranscriber
+#from .ast_transcriber import AstTranscriber
+
+_LOG = logging.getLogger(__name__)
 
 
 class StaticallyTyped(ast_module.AST):
 
     @classmethod
-    def clone(cls, node: ast_module.AST):
+    def from_other(cls, node: ast_module.AST):
         node_fields = {k: v for k, v in ast_module.iter_fields(node)}
         return cls(**node_fields)
+
+    @classmethod
+    def clone(cls, node: ast_module.AST):
+        warnings.warn('use from_other instead', FutureWarning)
+        node_fields = {k: v for k, v in ast_module.iter_fields(node)}
+        return cls(**node_fields)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def add_type_info(self, *args, **kwargs):
+        raise NotImplementedError()
+
+class StaticallyTypedFor(ast_module.For, StaticallyTyped):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.scope_vars = {}
+        self.add_type_info()
+
+    pass
+
+class StaticallyTypedWhile(ast_module.While, StaticallyTyped):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.scope_vars = {}
+        self.add_type_info()
+
+    pass
+
+class StaticallyTypedIf(ast_module.If, StaticallyTyped):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.if_true_vars = {}
+        self.if_false_vars = {}
+        self.add_type_info()
+
+    pass
+
+class StaticallyTypedFunctionDef(ast_module.FunctionDef, StaticallyTyped):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         #self.type_info = {'vars': {}, 'scopes': []}
         self.local_vars = {}
         #self.scopes = []
+        self.augment()
 
     def add_type_info(self, var_name: str, type_info: t.Any, scope: t.Any=None):
         if var_name in self.local_vars:
@@ -38,27 +82,6 @@ class StaticallyTyped(ast_module.AST):
                 type_info = eval(type_info)
         #'''
         self.local_vars[var_name] = type_info
-
-class StaticallyTypedFor(ast_module.For, StaticallyTyped):
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-    pass
-
-class StaticallyTypedWhile(ast_module.While, StaticallyTyped):
-
-    pass
-
-class StaticallyTypedIf(ast_module.If, StaticallyTyped):
-
-    pass
-
-class StaticallyTypedFunctionDef(ast_module.FunctionDef, StaticallyTyped):
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.augment()
 
     def _create_annotation_for(self, target, comment):
         if not isinstance(target, ast_module.Tuple):
@@ -115,4 +138,11 @@ class StaticallyTypedFunctionDef(ast_module.FunctionDef, StaticallyTyped):
 
 class StaticallyTypedClassDef(ast_module.ClassDef, StaticallyTyped):
 
-    pass
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.class_vars = {}
+        self.instance_vars = {}
+        self.static_methods = {}
+        self.class_methods = {}
+        self.instance_methods = {}
+        self.add_type_info()
