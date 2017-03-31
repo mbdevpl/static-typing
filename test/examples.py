@@ -6,6 +6,7 @@ Created on Mar 27, 2017
 
 import typing as t
 
+import numpy as np
 import static_typing as st
 
 def function1():
@@ -152,6 +153,15 @@ class1_reference = {
     'do_something',
     'make_noise'}
 
+class class2:
+    def __init__(self):
+        self.x = 0 # type: np.float16
+        self.y: np.float32 = 0.1
+        self.z, self.t = 0.1, 0 # type: float, int
+
+class2_reference = {
+    '__init__'}
+
 EXAMPLES = {
     'function with built-in types': {
         'function': function1, 'reference': function1_reference},
@@ -174,4 +184,6 @@ EXAMPLES = {
     'function with type-annotated value swap': {
         'function': function7, 'reference': function7_reference},
     'very simple class': {
-        'class': class1, 'reference': class1_reference}}
+        'class': class1, 'reference': class1_reference},
+    'class with instance fields': {
+        'class': class2, 'reference': class2_reference}}

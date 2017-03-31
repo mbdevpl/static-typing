@@ -3,6 +3,7 @@ import logging
 import typing as t
 import unittest
 
+import numpy as np
 import static_typing as st
 
 from .examples import EXAMPLES#, INVALID_EXAMPLES
@@ -50,6 +51,12 @@ class StaticallyTypedFunctionDefTests(unittest.TestCase):
         for description, example in INVALID_EXAMPLES.items():
             continue
     '''
+
+    def test_xu_script(self):
+        import os
+        path = os.path.expanduser(os.path.join('~', 'Projects', 'python', 'unique_access', ''))
+        with open(path) as f:
+            t = f.read()
 
     def test_print_type_info(self):
         for description, example in EXAMPLES.items():

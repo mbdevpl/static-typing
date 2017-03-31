@@ -13,6 +13,18 @@ from ._config import ast_module
 _LOG = logging.getLogger(__name__)
 
 
+def scan_FunctionDef(function: ast_module.FunctionDef) -> t.Sequence[t.Tuple[str, t.Sequence[type]]]:
+    """Scan FunctionDef node."""
+    variables = []
+    for node in ast_module.walk(function):
+        if isinstance(node, ast_module.Assign):
+            variables += scan_Assign(node)
+        elif isinstance(node, ast_module.AnnAssign):
+            variables += scan_AnnAssign(node)
+        elif isinstance(node, ast_module.For):
+            variables += [(node.target, node.type_comment)]
+    return variables
+
 def scan_Assign_target(
         target: t.Union[ast_module.Name, ast_module.Tuple],
         type_comment: t.Optional[tuple]) -> t.Sequence[t.Tuple[str, t.Sequence[type]]]:
@@ -28,8 +40,10 @@ def scan_Assign_target(
             variables += scan_Assign_target(elt, cmnt)
         return variables
 
-    assert isinstance(target, ast_module.Name)
-    return [(target.id, type_comment)]
+    #if isinstance(target, ast_module.Attribute):
+    #    return [(target, type_comment)]
+    #assert isinstance(target, ast_module.Name), type(target)
+    return [(target, type_comment)]
 
 
 def scan_Assign(node: ast_module.Assign) -> t.Sequence[t.Tuple[str, t.Sequence[type]]]:
@@ -42,8 +56,9 @@ def scan_Assign(node: ast_module.Assign) -> t.Sequence[t.Tuple[str, t.Sequence[t
 
 def scan_AnnAssign(node: ast_module.AnnAssign) -> t.Sequence[t.Tuple[str, t.Sequence[type]]]:
     """Scan AnnAssign node."""
-    assert isinstance(node.target, ast_module.Name)
-    return [(node.target.id, node.annotation)]
+    #assert isinstance(node.target, ast_module.Name)
+    return [(node.target, node.annotation)]
+
 
 class StaticallyTyped(ast_module.AST):
 
@@ -132,20 +147,28 @@ class StaticallyTypedFunctionDef(ast_module.FunctionDef, StaticallyTyped):
         #for node in typed_ast.ast3.iter_child_nodes(self):
         #    print(node.__class__, dict(typed_ast.ast3.iter_fields(node)))
         #print('walk')
+        results = scan_FunctionDef(self)
+        for k, v in results:
+            if isinstance(k, ast_module.Name):
+                self._add_local_var(k.id, v)
+        '''
         for node in ast_module.walk(self):
             if isinstance(node, ast_module.Assign):
                 results = scan_Assign(node)
                 for k, v in results:
-                    self._add_local_var(k, v)
+                    if isinstance(k, ast_module.Name):
+                        self._add_local_var(k.id, v)
             elif isinstance(node, ast_module.AnnAssign):
                 results = scan_AnnAssign(node)
                 for k, v in results:
-                    self._add_local_var(k, v)
+                    if isinstance(k, ast_module.Name):
+                        self._add_local_var(k.id, v)
             elif isinstance(node, ast_module.For):
                 assert isinstance(node.target, ast_module.Name)
                 self._add_local_var(node.target.id, node.type_comment)
                 #raise NotImplementedError((node.__class__, dict(typed_ast.ast3.iter_fields(node))))
             #print(node.__class__, dict(typed_ast.ast3.iter_fields(node)))
+        '''
 
     def __str__(self):
         return f'<FunctionDef,{self._kind.name}> {self.name}(...) -> ...: {len(self._local_vars)} local vars'
@@ -187,6 +210,12 @@ class StaticallyTypedClassDef(ast_module.ClassDef, StaticallyTyped):
             if isinstance(node, StaticallyTypedFunctionDef):
                 self._methods[node.name] = node._kind
                 getattr(self, self.kind_mapping[node._kind])[node.name] = node
+                if node._kind is FunctionKind.Constructor:
+                    results = scan_FunctionDef(node)
+                    for k, v in results:
+                        if isinstance(k, ast_module.Attribute):
+                            if isinstance(k.value, ast_module.Name) and k.value.id == 'self':
+                                self._add_var('_instance_fields', k.attr, v)
             elif isinstance(node, ast_module.FunctionDef):
                 raise NotImplementedError(node.name)
                 #if node.decorator_list:
@@ -196,7 +225,8 @@ class StaticallyTypedClassDef(ast_module.ClassDef, StaticallyTyped):
             elif isinstance(node, ast_module.Assign):
                 results = scan_Assign(node)
                 for k, v in results:
-                    self._add_var('_class_fields', k, v)
+                    if isinstance(k, ast_module.Name):
+                        self._add_var('_class_fields', k.id, v)
             #elif isinstance(node, ast_module.AnnAssign):
             #    results = scan_AnnAssign(node)
             #    for k, v in results.items():
