@@ -31,7 +31,7 @@ def parse(source: str, *args, globals_=None, locals_=None, **kwargs) -> ast_modu
     if not isinstance(source, str):
         source = inspect.getsource(source)
 
-    tree = ast_module.parse(source)
+    tree = ast_module.parse(source, *args, **kwargs)
     _LOG.debug('%s', ast_module.dump(tree))
 
     comment_transformer = TypeCommentTransformer[ast_module, ast](globals_=globals_, locals_=locals_)

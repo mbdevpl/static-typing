@@ -54,9 +54,18 @@ class StaticallyTypedFunctionDefTests(unittest.TestCase):
 
     def test_xu_script(self):
         import os
-        path = os.path.expanduser(os.path.join('~', 'Projects', 'python', 'unique_access', ''))
+        path = os.path.expanduser(os.path.join('~', 'Projects', 'python', 'unique_access', 'unique_access_improved.py'))
         with open(path) as f:
-            t = f.read()
+            source = f.readlines()
+        file_info = st.parse(''.join(source[14:20]), path)
+        page_info = st.parse(''.join(source[20:48]), path)
+        Node = st.parse(''.join(source[48:55]), path)
+        address_queue = st.parse(''.join(source[55:98]), path)
+        distance = st.parse(''.join(source[98:210]), path)
+        classes = [file_info, page_info, Node, address_queue, distance]
+        for cls in classes:
+            #print(cls.body[0])
+            print(cls.body[0].print_type_info())
 
     def test_print_type_info(self):
         for description, example in EXAMPLES.items():
@@ -65,5 +74,5 @@ class StaticallyTypedFunctionDefTests(unittest.TestCase):
                     typed_tree = st.parse(example['function'], globals_=globals(), locals_=locals())
                 if 'class' in example:
                     typed_tree = st.parse(example['class'], globals_=globals(), locals_=locals())
-                print(description)
-                typed_tree.body[0].print_type_info()
+                #print(description)
+                #typed_tree.body[0].print_type_info()
