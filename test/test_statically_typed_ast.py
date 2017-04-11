@@ -65,7 +65,8 @@ class StaticallyTypedFunctionDefTests(unittest.TestCase):
         classes = [file_info, page_info, Node, address_queue, distance]
         for cls in classes:
             #print(cls.body[0])
-            print(cls.body[0].print_type_info())
+            cls.body[0].print_type_info()
+            print(cls.body[0]._instance_fields)
 
     def test_print_type_info(self):
         for description, example in EXAMPLES.items():
