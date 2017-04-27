@@ -19,11 +19,13 @@ def create_recursive_ast_transformer(ast_module: t.ClassVar) -> t.ClassVar:
 
         def visit_fields(self, node: ast_module.AST) -> None:
             """Visit all fields of a given node."""
-            _LOG.debug('visiting %s', node)
-            assert hasattr(node, '_fields'), node
+            _LOG.debug('visiting all fields of node %s', node)
+            assert hasattr(node, '_fields'), (type(node), node, type(node).__mro__)
             for field_name, field_value in ast_module.iter_fields(node):
                 _LOG.debug('visiting field %s of %s', field_name, node)
-                if field_value is None or isinstance(field_value, (int, float, str, type, tuple)):
+                if field_value is None \
+                        or isinstance(field_value, (int, float, str, type, tuple)) \
+                        or isinstance(type(field_value), t.TypingMeta):
                     continue
                 if isinstance(field_value, list):
                     for i, field_value_elem in enumerate(field_value):

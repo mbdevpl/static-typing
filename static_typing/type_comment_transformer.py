@@ -27,7 +27,7 @@ def create_type_comment_transformer(
         """
         if not hasattr(node, 'type_comment') or node.type_comment is None:
             return node
-        _LOG.info('transforming type comment...')
+        _LOG.debug('transforming type comment "%s" of %s', node.type_comment, node)
         if not isinstance(node.type_comment, str):
             _LOG.warning('type comment is not a str but %s', type(node.type_comment))
             return node
@@ -36,7 +36,7 @@ def create_type_comment_transformer(
             #assert isinstance(globals_, dict), type(globals_)
             expression = compile(ast.Expression(body=node.type_comment), '<type-comment>', 'eval')
             node.type_comment = eval(expression, globals_, locals_)
-        _LOG.info('transformed type comment')
+        _LOG.info('transformed type comment of %s', node)
         return node
 
     class TypeCommentTransformerClass(RecursiveAstTransformer[ast_module]):

@@ -28,7 +28,7 @@ def create_type_annotation_transformer(
         
         if not hasattr(node, 'annotation') or node.annotation is None:
             return node
-        _LOG.info('transforming type annotation...')
+        _LOG.debug('transforming type annotation of %s', node)
         if not isinstance(node.annotation, ast_module.AST):
             _LOG.warning('type annotation is not AST but %s', type(node.annotation))
             return node
@@ -39,7 +39,7 @@ def create_type_annotation_transformer(
             node.annotation = eval(expression, globals_, locals_)
         else:
             raise NotImplementedError()
-        _LOG.info('transformed type annotation')
+        _LOG.info('transformed type annotation of %s', node)
         return node
 
     def transform_return_type_annotation(
@@ -53,7 +53,7 @@ def create_type_annotation_transformer(
         """
         if not hasattr(node, 'returns') or node.returns is None:
             return node
-        _LOG.info('transforming return type annotation...')
+        _LOG.debug('transforming return type annotation of %s', node)
         if not isinstance(node.returns, ast_module.AST):
             _LOG.warning('return type annotation is not AST but %s', type(node.returns))
             return node
@@ -64,7 +64,7 @@ def create_type_annotation_transformer(
             node.returns = eval(expression, globals_, locals_)
         else:
             raise NotImplementedError()
-        _LOG.info('transformed return type annotation')
+        _LOG.info('transformed return type annotation of %s', node)
         return node
 
     def transform_type_annotation(
