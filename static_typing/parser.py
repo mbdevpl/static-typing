@@ -26,7 +26,7 @@ def add_static_type_info(node: ast_module.AST) -> StaticallyTyped:
 
     return node
 
-def parse(source: str, *args, globals_=None, locals_=None, **kwargs) -> ast_module.AST:
+def parse(source: str, globals_=None, locals_=None, *args, **kwargs) -> ast_module.AST:
 
     if not isinstance(source, str):
         source = inspect.getsource(source)
