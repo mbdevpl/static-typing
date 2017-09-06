@@ -1,3 +1,4 @@
+"""Modified versions of usual AST nodes so that static type information can be stored in them."""
 
 import ast
 import enum
@@ -219,7 +220,7 @@ class StaticallyTypedFunctionDef(ast_module.FunctionDef, StaticallyTyped):
                 type_info.add(arg.annotation)
             if arg.type_comment is not None:
                 type_info.add(arg.type_comment)
-            self._params[arg.arg] =  type_info
+            self._params[arg.arg] = type_info
 
         results = scan_FunctionDef(self)
         for k, v in results:

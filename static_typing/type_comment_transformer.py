@@ -16,7 +16,8 @@ def create_type_comment_transformer(
     """Create TypeCommentTransformer class based on given AST modules."""
 
     def transform_type_comment(
-            node: ast_module.AST, eval_: bool=False, globals_=globals(), locals_=None) -> ast_module.AST:
+            node: ast_module.AST, eval_: bool = False,
+            globals_=globals(), locals_=None) -> ast_module.AST:
         """Parse node's type comment from str into AST.
 
         If eval_ is true, the resulting AST will be also compile()'d and eval()'d after.
@@ -48,36 +49,34 @@ def create_type_comment_transformer(
                 transform_type_comment, eval_=True, globals_=globals_, locals_=locals_)
             super().__init__(*args, transformer=transformer, **kwargs)
 
-        '''
-        def _visit_node_with_type_comment(self, node):
+        #def _visit_node_with_type_comment(self, node):
 
-        def generic_visit(self, node):
-            return ast_module.generic_visit(self, node)
+        #def generic_visit(self, node):
+        #    return ast_module.generic_visit(self, node)
 
-        def visit_FunctionDef(self, node):
-            return self._visit_node_with_type_comment(node)
+        #def visit_FunctionDef(self, node):
+        #    return self._visit_node_with_type_comment(node)
 
-        def visit_AsyncFunctionDef(self, node):
-            return self._visit_node_with_type_comment(node)
+        #def visit_AsyncFunctionDef(self, node):
+        #    return self._visit_node_with_type_comment(node)
 
-        def visit_Assign(self, node):
-            return self._visit_node_with_type_comment(node)
+        #def visit_Assign(self, node):
+        #    return self._visit_node_with_type_comment(node)
 
-        def visit_For(self, node):
-            return self._visit_node_with_type_comment(node)
+        #def visit_For(self, node):
+        #    return self._visit_node_with_type_comment(node)
 
-        def visit_AsyncFor(self, node):
-            return self._visit_node_with_type_comment(node)
+        #def visit_AsyncFor(self, node):
+        #    return self._visit_node_with_type_comment(node)
 
-        def visit_With(self, node):
-            return self._visit_node_with_type_comment(node)
+        #def visit_With(self, node):
+        #    return self._visit_node_with_type_comment(node)
 
-        def visit_AsyncWith(self, node):
-            return self._visit_node_with_type_comment(node)
+        #def visit_AsyncWith(self, node):
+        #    return self._visit_node_with_type_comment(node)
 
-        def visit_arg(self, node):
-            return self._visit_node_with_type_comment(node)
-        '''
+        #def visit_arg(self, node):
+        #    return self._visit_node_with_type_comment(node)
 
     return TypeCommentTransformerClass
 

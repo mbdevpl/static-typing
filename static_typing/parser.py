@@ -1,3 +1,4 @@
+"""High-level functions for parsing and adding static type information to AST."""
 
 import ast
 import inspect
@@ -27,6 +28,7 @@ def add_static_type_info(node: ast_module.AST) -> StaticallyTyped:
     return node
 
 def parse(source: str, globals_=None, locals_=None, *args, **kwargs) -> ast_module.AST:
+    """Act like ast.parse() or typed_ast3.parse() but also put static type info into AST."""
 
     if not isinstance(source, str):
         source = inspect.getsource(source)

@@ -10,7 +10,7 @@ _LOG = logging.getLogger(__name__)
 
 def create_recursive_ast_transformer(ast_module: t.ClassVar) -> t.ClassVar:
     """Create a RecursiveAstTransformer based on a given AST module."""
-    
+
     class RecursiveAstTransformerClass(ast_module.NodeTransformer):
 
         def __init__(self, *args, transformer: t.Callable[[ast_module.AST], ast_module.AST], **kwargs):
@@ -29,7 +29,7 @@ def create_recursive_ast_transformer(ast_module: t.ClassVar) -> t.ClassVar:
                     continue
                 if isinstance(field_value, list):
                     for i, field_value_elem in enumerate(field_value):
-                        field_value[i] =  self.visit(field_value_elem)
+                        field_value[i] = self.visit(field_value_elem)
                     continue
                 setattr(node, field_name, self.visit(field_value))
 

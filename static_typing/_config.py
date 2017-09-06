@@ -1,3 +1,4 @@
+"""Configuration for static_typing package."""
 
 import typed_ast.ast3
 
