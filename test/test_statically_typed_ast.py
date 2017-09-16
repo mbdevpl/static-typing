@@ -15,6 +15,7 @@ class StaticallyTypedFunctionDefTests(unittest.TestCase):
 
     """Unit tests for StaticallyTypedFunctionDef class."""
 
+    @unittest.skip("not ready")
     def test_parse_examples(self):
         """Parse ASTs of examples correctly."""
         for description, example in EXAMPLES.items():
@@ -52,6 +53,7 @@ class StaticallyTypedFunctionDefTests(unittest.TestCase):
             continue
     '''
 
+    @unittest.skip("not ready")
     def test_xu_script(self):
         import os
         path = os.path.expanduser(os.path.join('~', 'Projects', 'python', 'unique_access', 'unique_access_improved.py'))

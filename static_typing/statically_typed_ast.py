@@ -151,12 +151,12 @@ class StaticallyTypedModule(ast_module.Module, StaticallyTyped):
 
 class FunctionKind(enum.IntEnum):
     Undetermined = 0
-    Function = 16
-    Method = 1 + 2 + 4 + 8
-    ClassMethod = 1 + 4
-    StaticMethod = 1 + 8
-    Constructor = 1 + 2 + 32
+    Function = 1
     InstanceMethod = 1 + 2
+    Constructor = 1 + 2 + 4
+    ClassMethod = 1 + 8
+    StaticMethod = 1 + 16
+    Method = 1 + 2 + 4 + 8
 
 
 class StaticallyTypedFunctionDef(ast_module.FunctionDef, StaticallyTyped):
