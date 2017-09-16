@@ -1,0 +1,41 @@
+sudo: false
+language: generic
+matrix:
+  include:
+    - os: linux
+      language: python
+      python: "3.4"
+    - os: linux
+      language: python
+      python: "3.5"
+    - os: linux
+      language: python
+      python: "3.6"
+    - os: linux
+      language: python
+      python: "3.6-dev"
+    - os: linux
+      language: python
+      python: "3.7-dev"
+  allow_failures:
+    - python: "3.4"
+    - python: "3.5"
+    - python: "3.6-dev"
+    - python: "3.7-dev"
+
+install:
+  - pip install -U pip
+  - pip install -U -r dev_requirements.txt
+
+script:
+  - TEST_PACKAGING=1 python -m coverage run --branch --source . -m unittest discover --verbose
+
+after_success:
+  - python -m coverage report --show-missing
+  - coveralls
+  - python -m pylint --load-plugins=pylint.extensions.mccabe --docstring-min-length 5 --no-docstring-rgx "^(test)?_|.*Tests$" --unsafe-load-any-extension y --output-format colorized  --reports y $(find . -name "*.py")
+
+notifications:
+  slack:
+    secure: "cmNGcm27uGzI2lXD8ueSPHlG8mJ10BHeoZES22/js1jes1Ip29/jnMWVv45N2KCOQSpNfrgd8htTZwsfRQ1Lm8mhCV6ata+x6PFbvL7pYpQ0vyDNMvh8QhtA7vEG8ozCgPIyF5Tquo68tUCD86FWRidC0Mru/FQSq8Ry9i+uD2tPBZvz83Z4RH9FjzTM7FyNuiUU4B6EhwKw4HFH4zgzY0pgcApTKtE+W8HErJMHt7Cs9U0ihOny6Ue/qpYkBhRlzTzGgBVgrWPsZJ/gOQGw/spjp3YuqMViO8b75RtwkFFUaJbOH+tzCtsqoUe0Iz3rjTJleqlq2tyfBFfmIe3XNHZdFCOTOZs4JrdZots4UiJP6jy0jN8RHk/w1J/G9iSsnVu0eMlTPAvV24MEQ/Nir+stHf2efFZ56xz9aO45cGW/0Y0a41jFfmLT7TOKG5QYQooq94+WLi3c3lvmr8J5yZrwSASWXuMFUXWKj/FBiHCPo5wizck7t668geDiCvF0n9GnFKeSFk2zzsv8FEmUPdOEwFWgM31BfN2KmU5nFgyMjoz5XX71Po6nKQrUkW15aS5m7DobWQSn2nbvfkgB+WMT9mdMXxJcNulGHneopnU++WOReRgxkW7iwig2qb80VU5pWTjYxy+5edquPzw/Pe+O1PHihV8U9642Ij4pwMA="
+  email: false

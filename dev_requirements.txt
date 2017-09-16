@@ -1,0 +1,9 @@
+coverage
+coveralls
+pip >= 9.0
+pylint
+setuptools >= 20.5
+twine
+typed_ast
+typed_astunparse
+-rtest_requirements.txt
