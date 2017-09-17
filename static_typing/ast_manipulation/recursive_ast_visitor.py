@@ -51,6 +51,5 @@ def create_recursive_ast_visitor(ast_module):
     return RecursiveAstVisitorClass
 
 
-RecursiveAstVisitor = {
-    ast_module: create_recursive_ast_visitor(ast_module)
-    for ast_module in [ast, typed_ast.ast3]}
+RecursiveAstVisitor = {ast_module: create_recursive_ast_visitor(ast_module)
+                       for ast_module in (ast, typed_ast.ast3)}

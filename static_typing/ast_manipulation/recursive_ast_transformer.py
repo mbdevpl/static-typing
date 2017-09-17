@@ -48,6 +48,5 @@ def create_recursive_ast_transformer(ast_module):
     return RecursiveAstTransformerClass
 
 
-RecursiveAstTransformer = {
-    ast_module: create_recursive_ast_transformer(ast_module)
-    for ast_module in [ast, typed_ast.ast3]}
+RecursiveAstTransformer = {ast_module: create_recursive_ast_transformer(ast_module)
+                           for ast_module in (ast, typed_ast.ast3)}

@@ -169,7 +169,7 @@ class class3:
 class3_reference = {
     '__init__'}
 
-EXAMPLES = {
+EXAMPLE_FUNCTIONS = {
     'function with built-in types': {
         'function': function1, 'reference': function1_reference},
     'function with external types': {
@@ -189,13 +189,17 @@ EXAMPLES = {
     'function with conflicting types in branches': {
         'function': function6, 'reference': function6_reference},
     'function with type-annotated value swap': {
-        'function': function7, 'reference': function7_reference},
+        'function': function7, 'reference': function7_reference}}
+
+EXAMPLE_CLASSES = {
     'very simple class': {
         'class': class1, 'reference': class1_reference},
     'class with instance fields': {
         'class': class2, 'reference': class2_reference},
     'class with instance fields and external types': {
         'class': class3, 'reference': class3_reference}}
+
+EXAMPLES = {**EXAMPLE_FUNCTIONS, **EXAMPLE_CLASSES}
 
 CODE_EXAMPLES = {
     description: (inspect.getsource(example['function'])
