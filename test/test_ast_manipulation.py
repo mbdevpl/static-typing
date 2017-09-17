@@ -7,18 +7,15 @@ import typing as t
 import unittest
 
 import numpy as np
-import typed_ast.ast3
 
 import static_typing as st
 from static_typing.ast_manipulation.recursive_ast_visitor import RecursiveAstVisitor
 from static_typing.ast_manipulation.recursive_ast_transformer import RecursiveAstTransformer
 from static_typing.ast_manipulation.ast_transcriber import AstTranscriber
 from static_typing.ast_manipulation.type_hint_resolver import TypeHintResolver
-from .examples import CODE_EXAMPLES
+from .examples import AST_MODULES, SOURCE_CODES
 
 _LOG = logging.getLogger(__name__)
-
-AST_MODULES = (ast, typed_ast.ast3)
 
 
 class Tests(unittest.TestCase):
@@ -27,7 +24,7 @@ class Tests(unittest.TestCase):
 
     def test_recursive_ast_visitor(self):
         for ast_module in AST_MODULES:
-            for description, example in CODE_EXAMPLES.items():
+            for description, example in SOURCE_CODES.items():
                 with self.subTest(ast_module=ast_module, msg=description, example=example):
                     class visitor_class(RecursiveAstVisitor[ast_module]):
                         visited_node = False
@@ -44,7 +41,7 @@ class Tests(unittest.TestCase):
 
     def test_recursive_ast_transformer(self):
         for ast_module in AST_MODULES:
-            for description, example in CODE_EXAMPLES.items():
+            for description, example in SOURCE_CODES.items():
                 with self.subTest(ast_module=ast_module, msg=description, example=example):
                     class transformer_class(RecursiveAstTransformer[ast_module]):
                         transformed_node = False
@@ -74,7 +71,7 @@ class Tests(unittest.TestCase):
         for from_ast_module, to_ast_module in itertools.product(AST_MODULES, AST_MODULES):
             if from_ast_module is to_ast_module:
                 continue
-            for description, example in CODE_EXAMPLES.items():
+            for description, example in SOURCE_CODES.items():
                 with self.subTest(from_ast_module=from_ast_module, to_ast_module=to_ast_module,
                                   msg=description, example=example):
                     transcriber = AstTranscriber[from_ast_module, to_ast_module]()
@@ -92,9 +89,9 @@ class Tests(unittest.TestCase):
                 AST_MODULES, AST_MODULES, (False, True), (None, globals()), (None,)):
             if parser_ast_module is not ast and eval_:
                 with self.assertRaises(NotImplementedError):
-                    TypeHintResolver[typed_ast.ast3, parser_ast_module](eval_)
+                    TypeHintResolver[ast_module, parser_ast_module](eval_)
                 continue
-            for description, example in CODE_EXAMPLES.items():
+            for description, example in SOURCE_CODES.items():
                 with self.subTest(ast_module=ast_module, parser_ast_module=parser_ast_module,
                                   eval=eval_, globals_is_none=globals_ is None,
                                   locals_is_none=locals_ is None, msg=description, example=example):
@@ -106,3 +103,4 @@ class Tests(unittest.TestCase):
                             resolver.visit(tree)
                         continue
                     tree = resolver.visit(tree)
+                    # TODO: validate tree
