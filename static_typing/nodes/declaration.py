@@ -1,67 +1,44 @@
 
 import ast
 import collections
-import typing as t
-import warnings
+import logging
 
 import typed_ast.ast3
 
 from .statically_typed import StaticallyTyped
 
-
-def scan_Assign_target(
-        target: 't.Union[ast_module.Name, ast_module.Tuple]',
-        type_comment: t.Optional[tuple], ast_module) -> t.Sequence[t.Tuple[str, t.Sequence[type]]]:
-    """Scan target of Assign node."""
-    if isinstance(target, ast_module.Tuple):
-        if type_comment is None:
-            type_comment = [None for _ in target.elts]
-        elif isinstance(type_comment, ast_module.Tuple):
-            warnings.warn('wtf', FutureWarning)
-            type_comment = type_comment.elts
-        variables = []
-        for elt, cmnt in zip(target.elts, type_comment):
-            variables += scan_Assign_target(elt, cmnt)
-        return variables
-
-    #if isinstance(target, ast_module.Attribute):
-    #    return [(target, type_comment)]
-    #assert isinstance(target, ast_module.Name), type(target)
-    return [(target, type_comment)]
-
-
-def scan_Assign(assign, ast_module) -> t.Sequence[t.Tuple[str, t.Sequence[type]]]:
-    """Scan Assign node."""
-    variables = []
-    for target in assign.targets:
-        variables += scan_Assign_target(target, getattr(assign, 'type_comment', None), ast_module)
-    return variables
-
-
-def scan_AnnAssign(ann_assign, ast_module) -> t.Sequence[t.Tuple[str, t.Sequence[type]]]:
-    """Scan AnnAssign node."""
-    assert isinstance(ann_assign.target, ast_module.Name)
-    return [(ann_assign.target, ann_assign.annotation)]
+_LOG = logging.getLogger(__name__)
 
 
 def create_statically_typed_declaration(ast_module):
 
     class StaticallyTypedDeclarationClass(StaticallyTyped[ast_module]):
 
-        _type_fields = 'vars', 'value_types'
+        _type_fields = 'vars',
 
         def __init__(self, *args, **kwargs):
-            self._vars = []
-            self._value_types = collections.OrderedDict()
+            self._vars = collections.OrderedDict()
             super().__init__(*args, **kwargs)
+
+        def _add_declaration(self, target, type_hint):
+            if isinstance(target, ast_module.Tuple):
+                if type_hint is None:
+                    type_hint = [None for _ in target.elts]
+                if isinstance(type_hint, ast_module.AST):
+                    raise TypeError(f'unresolved type hint: {ast_module.dump(type_hint)}')
+                if not isinstance(type_hint, collections.abc.Iterable):
+                    raise TypeError(
+                        f'expected iterable type hint but got {type(type_hint)}: {type_hint}')
+                for elt, elt_hint in zip(target.elts, type_hint):
+                    self._add_declaration(elt, elt_hint)
+                return
+            self._vars[target] = type_hint
 
         def _add_declarations(self, targets, type_hint):
             if len(targets) == 1:
-                pass
+                self._add_declaration(targets[0], type_hint)
             for target in targets:
-                continue
-            # TODO: implementation
-            #raise NotImplementedError()
+                self._add_declaration(target, type_hint)
 
     return StaticallyTypedDeclarationClass
 
@@ -89,8 +66,7 @@ def create_statically_typed_ann_assign(ast_module):
     class StaticallyTypedAnnAssignClass(ast_module.AnnAssign, StaticallyTypedDeclaration[ast_module]):
 
         def _add_type_info(self):
-            #assert isinstance(self.target, ast_module.Name), type(self.target)
-            self._add_declarations([self.target], self.annotation)
+            self._add_declaration(self.target, self.annotation)
 
     return StaticallyTypedAnnAssignClass
 

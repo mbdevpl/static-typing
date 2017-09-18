@@ -74,7 +74,7 @@ def function_c4():
 def function_a5():
     """function with very complex type annotations, ver. 4"""
     spam , (ham, eggs), (sausage, bacon) = \
-        '', (0, 0.0), (True, None) # type: str, (int, float), bool, object
+        '', (0, 0.0), (True, None) # type: str, (int, float), (bool, object)
 
 
 def function_b5():

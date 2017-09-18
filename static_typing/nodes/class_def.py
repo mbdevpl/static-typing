@@ -7,7 +7,7 @@ import typed_ast.ast3
 
 from .statically_typed import StaticallyTyped
 from .function_def import scan_FunctionDef, FunctionKind, StaticallyTypedFunctionDef
-from .declaration import scan_Assign
+from .declaration import StaticallyTypedAssign
 
 
 def create_statically_typed_class_def(ast_module):
@@ -58,8 +58,9 @@ def create_statically_typed_class_def(ast_module):
                     #self.instance_methods node.
                     #node.
                 elif isinstance(node, ast_module.Assign):
-                    results = scan_Assign(node, ast_module)
-                    for k, v in results:
+                    if not isinstance(node, StaticallyTypedAssign[ast_module]):
+                        node = StaticallyTypedAssign[ast_module].from_other(node)
+                    for k, v in node._vars.items():
                         if isinstance(k, ast_module.Name):
                             self._add_var('_class_fields', k.id, v)
                 #elif isinstance(node, ast_module.AnnAssign):

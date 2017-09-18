@@ -1,11 +1,18 @@
 """Unit tests for nodes module."""
 
+import ast
 import logging
 import unittest
+import typing as t
 
+import numpy as np
+
+import static_typing as st
+from static_typing.ast_manipulation.type_hint_resolver import TypeHintResolver
 from static_typing.nodes.module import StaticallyTypedModule
 from static_typing.nodes.function_def import StaticallyTypedFunctionDef
 from static_typing.nodes.class_def import StaticallyTypedClassDef
+from static_typing.nodes.declaration import StaticallyTypedAssign, StaticallyTypedAnnAssign
 from .examples import \
     AST_MODULES, FUNCTIONS_SOURCE_CODES, FUNCTIONS_LOCAL_VARS, CLASSES_SOURCE_CODES, CLASSES_MEMBERS
 
@@ -58,10 +65,31 @@ class Tests(unittest.TestCase):
                     # TODO: validate types of class fields
 
     def test_assign(self):
-        pass
+        for ast_module in AST_MODULES:
+            resolver = TypeHintResolver[ast_module, ast](globals_=globals())
+            for description, example in FUNCTIONS_SOURCE_CODES.items():
+                tree = ast_module.parse(example)
+                for node in ast_module.walk(tree):
+                    if isinstance(node, ast_module.Assign):
+                        node = resolver.visit(node)
+                        with self.subTest(ast_module=ast_module, msg=description, example=example,
+                                          node=ast_module.dump(node)):
+                            assign = StaticallyTypedAssign[ast_module].from_other(node)
+                            self.assertGreaterEqual(len(assign._vars), 1)
+                            _LOG.info('%s', assign)
+                            # TODO: validate types of declared variables
 
     def test_ann_assign(self):
-        pass
-
-    def test_for(self):
-        pass
+        for ast_module in AST_MODULES:
+            resolver = TypeHintResolver[ast_module, ast](globals_=globals())
+            for description, example in FUNCTIONS_SOURCE_CODES.items():
+                tree = ast_module.parse(example)
+                for node in ast_module.walk(tree):
+                    if isinstance(node, ast_module.AnnAssign):
+                        node = resolver.visit(node)
+                        with self.subTest(ast_module=ast_module, msg=description, example=example,
+                                          node=ast_module.dump(node)):
+                            ann_assign = StaticallyTypedAnnAssign[ast_module].from_other(node)
+                            self.assertEqual(len(ann_assign._vars), 1)
+                            _LOG.info('%s', ann_assign)
+                            # TODO: validate types of declared variables
