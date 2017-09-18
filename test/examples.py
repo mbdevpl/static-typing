@@ -48,44 +48,44 @@ def function_3():
     spam, ham, eggs = '', 0, 0.0 # type: str , int , float
     spam, ham, eggs = '', 0, 0.0 # type: ( str , int , float )
     spam, ham, eggs = '', 0, 0.0 # type: ( ( str , int , float ) )
-    spam, (ham, eggs) = '', 0, 0.0 # type: str , ( int , float )
-    spam, (ham, eggs) = '', 0, 0.0 # type: str , ( int , float )
-    (spam, ham), eggs = '', 0, 0.0 # type: ( str , int ) , float
+    spam, (ham, eggs) = '', (0, 0.0) # type: str , ( int , float )
+    spam, (ham, eggs) = '', (0, 0.0) # type: str , ( int , float )
+    (spam, ham), eggs = ('', 0), 0.0 # type: ( str , int ) , float
 
 
 def function_a4():
     """function with very complex type annotations, ver. 1"""
     spam , ( ( ham , bacon ) , eggs ) , sausage , beans = \
-        '', 0, 0.0, True, None, b'' # type: str, ((int, float), bool), object, bytes
+        '', ((0, 0.0), True), None, b'' # type: str, ((int, float), bool), object, bytes
 
 
 def function_b4():
     """function with very complex type annotations, ver. 2"""
     spam , ( ham , ( bacon , eggs ) ) , sausage , beans = \
-        '', 0, 0.0, True, None, b'' # type: str, (int, (float, bool)), object, bytes
+        '', (0, (0.0, True)), None, b'' # type: str, (int, (float, bool)), object, bytes
 
 
 def function_c4():
     """function with very complex type annotations, ver. 3"""
     spam , ( ham , ( bacon , eggs ) , sausage ) , beans = \
-        '', 0, 0.0, True, None, b'' # type: str, (int, (float, bool), object), bytes
+        '', (0, (0.0, True), None), b'' # type: str, (int, (float, bool), object), bytes
 
 
 def function_a5():
     """function with very complex type annotations, ver. 4"""
     spam , (ham, eggs), (sausage, bacon) = \
-        '', 0, 0.0, True, None # type: str, (int, float), bool, object
+        '', (0, 0.0), (True, None) # type: str, (int, float), bool, object
 
 
 def function_b5():
     """function with very complex type annotations, ver. 5"""
     (spam, ham), eggs, (sausage, bacon) = \
-        '', 0, 0.0, True, None # type: (str, int), float, (bool, object)
+        ('', 0), 0.0, (True, None) # type: (str, int), float, (bool, object)
 
 
-def function_6():
+def function_6(eggs: bool = True):
     """function with conflicting types in branches"""
-    spam: bool = True
+    spam: bool = eggs
     if spam:
         ham: str = ''
     else:
@@ -163,10 +163,8 @@ _FUNCTIONS_LOCAL_VARS = {
         'spam': (int, str),
         'ham': (str, int)}}
 
-FUNCTIONS_LOCAL_VARS = {
-    function.__doc__: (inspect.getsource(function),
-                       _FUNCTIONS_LOCAL_VARS[int(function.__name__[-1])])
-    for function in FUNCTIONS}
+FUNCTIONS_LOCAL_VARS = {function.__doc__: _FUNCTIONS_LOCAL_VARS[int(function.__name__[-1])]
+                        for function in FUNCTIONS}
 
 
 class class_1:
@@ -215,8 +213,6 @@ _CLASSES_MEMBERS = {
     3: {
         '__init__'}}
 
-CLASSES_MEMBERS = {
-    cls.__doc__: (inspect.getsource(cls), _CLASSES_MEMBERS[int(cls.__name__[-1])])
-    for cls in CLASSES}
+CLASSES_MEMBERS = {cls.__doc__: _CLASSES_MEMBERS[int(cls.__name__[-1])] for cls in CLASSES}
 
 SOURCE_CODES = {**FUNCTIONS_SOURCE_CODES, **CLASSES_SOURCE_CODES}

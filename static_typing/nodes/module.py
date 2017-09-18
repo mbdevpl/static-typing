@@ -6,6 +6,32 @@ import typed_ast.ast3
 
 from .statically_typed import StaticallyTyped
 
+def scan_module(module, ast_module):
+    classes, functions = {}, {}
+    '''
+    if isinstance(node, (ast_module.Assign, ast_module.AnnAssign)):
+        if isinstance(node, ast_module.Assign):
+            variables = scan_Assign(node)
+        elif isinstance(node, ast_module.AnnAssign):
+            variables = scan_AnnAssign(node)
+        else:
+            TypeError('unhandled type')
+        for var, type_info in variables:
+            var_name = var.id
+            if var_name.isupper():
+                if var_name not in self._constants:
+                    self._constants[var_name] = ordered_set.OrderedSet()
+                if type_info is not None:
+                    self._constants[var_name].append(type_info)
+            else:
+                raise NotImplementedError('module-level variables are not supported')
+    '''
+    for node in module.body:
+        if isinstance(node, ast_module.ClassDef):
+            classes[node.name] = node
+        elif isinstance(node, ast_module.FunctionDef):
+            functions[node.name] = node
+    return classes, functions
 
 def create_statically_typed_module(ast_module):
 
@@ -21,29 +47,7 @@ def create_statically_typed_module(ast_module):
             super().__init__(*args, **kwargs)
 
         def _add_type_info(self):
-            for node in self.body:
-                '''
-                if isinstance(node, (ast_module.Assign, ast_module.AnnAssign)):
-                    if isinstance(node, ast_module.Assign):
-                        variables = scan_Assign(node)
-                    elif isinstance(node, ast_module.AnnAssign):
-                        variables = scan_AnnAssign(node)
-                    else:
-                        TypeError('unhandled type')
-                    for var, type_info in variables:
-                        var_name = var.id
-                        if var_name.isupper():
-                            if var_name not in self._constants:
-                                self._constants[var_name] = ordered_set.OrderedSet()
-                            if type_info is not None:
-                                self._constants[var_name].append(type_info)
-                        else:
-                            raise NotImplementedError('module-level variables are not supported')
-                '''
-                if isinstance(node, ast_module.FunctionDef):
-                    self._functions[node.name] = node
-                elif isinstance(node, ast_module.ClassDef):
-                    self._classes[node.name] = node
+            self._classes, self._functions = scan_module(self, ast_module)
 
         '''
         def _type_info_view(self, indent: int = 0, inline: bool = False):
