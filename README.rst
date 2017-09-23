@@ -21,9 +21,9 @@ static-typing
     :target: https://www.codacy.com/app/mbdevpl/static-typing
     :alt: grade from Codacy
 
-.. image:: https://coveralls.io/repos/github/mbdevpl/static-typing/badge.svg?branch=master
-    :target: https://coveralls.io/github/mbdevpl/static-typing
-    :alt: test coverage from Coveralls
+.. image:: https://codecov.io/gh/mbdevpl/static-typing/branch/master/graph/badge.svg
+    :target: https://codecov.io/gh/mbdevpl/static-typing
+    :alt: test coverage from Codecov
 
 .. image:: https://img.shields.io/pypi/l/static-typing.svg
     :target: https://github.com/mbdevpl/static-typing/blob/master/NOTICE
