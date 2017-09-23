@@ -11,8 +11,16 @@ _LOG = logging.getLogger(__name__)
 
 
 def create_ast_transcriber(from_ast_module, to_ast_module):
+    """Create AstTranscriber class based on given AST modules."""
 
     class AstTranscriberClass(RecursiveAstTransformer[from_ast_module]):
+
+        """Rewrite one AST tree into another.
+
+        The point of rewriting is to convert the ASTs that come from different modules.
+        In order for transcription to succeed, those modules have to be node-to-node compatible
+        (at least in case of a given transcribed tree).
+        """
 
         def visit_node(self, node):
             _LOG.info('remapping %s from %s to %s', node, from_ast_module, to_ast_module)

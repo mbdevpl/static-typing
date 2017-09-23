@@ -95,4 +95,4 @@ def create_statically_typed_class_def(ast_module):
 
 
 StaticallyTypedClassDef = {ast_module: create_statically_typed_class_def(ast_module)
-                              for ast_module in (ast, typed_ast.ast3)}
+                           for ast_module in (ast, typed_ast.ast3)}

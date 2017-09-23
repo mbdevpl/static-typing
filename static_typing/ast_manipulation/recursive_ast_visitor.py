@@ -10,6 +10,7 @@ _LOG = logging.getLogger(__name__)
 
 
 def create_recursive_ast_visitor(ast_module):
+    """Create RecursiveAstVisitor class based on a given AST module."""
 
     class RecursiveAstVisitorClass(ast_module.NodeVisitor):
 

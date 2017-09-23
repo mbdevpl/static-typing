@@ -12,6 +12,7 @@ _LOG = logging.getLogger(__name__)
 
 
 def create_recursive_ast_transformer(ast_module):
+    """Create RecursiveAstTransformer class based on a given AST module."""
 
     class RecursiveAstTransformerClass(RecursiveAstVisitor[ast_module], ast_module.NodeTransformer):
 
