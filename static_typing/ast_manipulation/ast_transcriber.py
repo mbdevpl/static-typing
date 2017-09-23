@@ -1,3 +1,4 @@
+"""Rewrite AST tree based on one AST module into a tree based on another (compatible) module."""
 
 import ast
 import logging

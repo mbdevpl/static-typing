@@ -1,3 +1,4 @@
+"""Overwrite all nodes and fields in a given AST recursively."""
 
 import ast
 import logging

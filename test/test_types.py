@@ -12,15 +12,15 @@ class Tests(unittest.TestCase):
 
     def test_numpy_1d_ndarray(self):
         for data_type in (bool, int, float):
-                with self.subTest(data_type=data_type):
-                    ordinary = np.ndarray(10, dtype=data_type)
-                    statically_typed = ndarray[1, data_type](10)
-                    self.assertEqual(ordinary.shape, statically_typed.shape)
-                    self.assertEqual(ordinary.dtype, statically_typed.dtype)
-                    with self.assertRaises(ValueError):
-                        ndarray[1, data_type]((10,10))
-                    with self.assertRaises(TypeError):
-                        ndarray[1, data_type](10, dtype=object)
+            with self.subTest(data_type=data_type):
+                ordinary = np.ndarray(10, dtype=data_type)
+                statically_typed = ndarray[1, data_type](10)
+                self.assertEqual(ordinary.shape, statically_typed.shape)
+                self.assertEqual(ordinary.dtype, statically_typed.dtype)
+                with self.assertRaises(ValueError):
+                    ndarray[1, data_type]((10, 10))
+                with self.assertRaises(TypeError):
+                    ndarray[1, data_type](10, dtype=object)
 
     def test_numpy_general_ndarray(self):
         for data_type in (bool, int, float):

@@ -3,17 +3,13 @@
 import ast
 import itertools
 import logging
-import typing as t
 import unittest
 
-import numpy as np
-
-import static_typing as st
 from static_typing.ast_manipulation.recursive_ast_visitor import RecursiveAstVisitor
 from static_typing.ast_manipulation.recursive_ast_transformer import RecursiveAstTransformer
 from static_typing.ast_manipulation.ast_transcriber import AstTranscriber
 from static_typing.ast_manipulation.type_hint_resolver import TypeHintResolver
-from .examples import AST_MODULES, SOURCE_CODES
+from .examples import AST_MODULES, SOURCE_CODES, GLOBALS_EXTERNAL, GLOBALS_EXAMPLES
 
 _LOG = logging.getLogger(__name__)
 
@@ -86,7 +82,7 @@ class Tests(unittest.TestCase):
 
     def test_type_hint_resolver(self):
         for ast_module, parser_ast_module, eval_, globals_, locals_ in itertools.product(
-                AST_MODULES, AST_MODULES, (False, True), (None, globals()), (None,)):
+                AST_MODULES, AST_MODULES, (False, True), GLOBALS_EXAMPLES, (None,)):
             if parser_ast_module is not ast and eval_:
                 with self.assertRaises(NotImplementedError):
                     TypeHintResolver[ast_module, parser_ast_module](eval_)
@@ -98,7 +94,8 @@ class Tests(unittest.TestCase):
                     resolver = TypeHintResolver[ast_module, parser_ast_module](
                         eval_, globals_, locals_)
                     tree = ast_module.parse(example)
-                    if eval_ and globals_ is None and 'external types' in description:
+                    if eval_ and 'external types' in description \
+                            and globals_ is not GLOBALS_EXTERNAL:
                         with self.assertRaises(NameError):
                             resolver.visit(tree)
                         continue

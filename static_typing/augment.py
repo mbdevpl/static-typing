@@ -1,3 +1,4 @@
+"""Add static type information to a given AST."""
 
 import ast
 import logging

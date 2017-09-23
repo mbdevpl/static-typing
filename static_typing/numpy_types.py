@@ -15,7 +15,7 @@ def create_typed_numpy_ndarray(dims: int, data_type: t.ClassVar):
         shape = shape_loc[0][shape_loc[1]]
         if shape is not None and (dims != 1 if isinstance(shape, int) else len(shape) != dims):
             raise ValueError(f'actual ndarray shape {shape} conflicts'
-                            f' with its declared dimensionality of {dims}')
+                             f' with its declared dimensionality of {dims}')
 
         try:
             dtype = dtype_loc[0][dtype_loc[1]]
@@ -34,6 +34,6 @@ def create_typed_numpy_ndarray(dims: int, data_type: t.ClassVar):
 ndarray = {
     (dims, data_type): create_typed_numpy_ndarray(dims, data_type)
     for data_type in [int, np.int8, np.int16, np.int32, np.int64,
-                  float, np.float16, np.float32, np.float64,
-                  bool, np.bool]
+                      float, np.float16, np.float32, np.float64,
+                      bool, np.bool]
     for dims in [1, 2, 3]}

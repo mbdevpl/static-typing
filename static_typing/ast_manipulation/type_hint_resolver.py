@@ -1,3 +1,4 @@
+"""Resolve type hints present in a given AST."""
 
 import ast
 import logging
@@ -29,7 +30,11 @@ def create_type_hint_resolver(ast_module, parser_ast_module):
             if self._eval and parser_ast_module is not ast:
                 raise NotImplementedError(
                     'Only built-in ast module has capability to compile() and eval() Python.')
+            if globals_ is None:
+                globals_ = {'__builtins__': globals()['__builtins__']}
             self._globals = globals_
+            if locals_ is None:
+                locals_ = {}
             self._locals = locals_
             if ast_module is not parser_ast_module:
                 self._transcriber = AstTranscriber[ast_module, parser_ast_module]()
@@ -61,9 +66,6 @@ def create_type_hint_resolver(ast_module, parser_ast_module):
             return eval(expression, self._globals, self._locals)
 
         def visit_node(self, node):
-            no_globals = self._globals is None
-            if no_globals:
-                self._globals = globals()
             if getattr(node, 'type_comment', None) is not None:
                 if not isinstance(node.type_comment, str):
                     _LOG.warning('type comment is not a str but %s', type(node.type_comment))
@@ -78,8 +80,6 @@ def create_type_hint_resolver(ast_module, parser_ast_module):
                 _LOG.debug('resolving return type annotation of %s', node)
                 node.returns = self.resolve_type_hint(node.returns)
                 _LOG.info('resolved return type annotation of %s', node)
-            if no_globals:
-                self._globals = None
             return node
 
     return TypeHintResolverClass

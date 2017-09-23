@@ -1,3 +1,4 @@
+"""Declaration nodes, i.e. Assign and AnnAssign."""
 
 import ast
 import collections
@@ -14,7 +15,7 @@ def create_statically_typed_declaration(ast_module):
 
     class StaticallyTypedDeclarationClass(StaticallyTyped[ast_module]):
 
-        _type_fields = 'vars',
+        _type_fields = ('vars',)
 
         def __init__(self, *args, **kwargs):
             self._vars = collections.OrderedDict()
@@ -63,7 +64,8 @@ StaticallyTypedAssign = {ast_module: create_statically_typed_assign(ast_module)
 
 def create_statically_typed_ann_assign(ast_module):
 
-    class StaticallyTypedAnnAssignClass(ast_module.AnnAssign, StaticallyTypedDeclaration[ast_module]):
+    class StaticallyTypedAnnAssignClass(
+            ast_module.AnnAssign, StaticallyTypedDeclaration[ast_module]):
 
         def _add_type_info(self):
             self._add_declaration(self.target, self.annotation)

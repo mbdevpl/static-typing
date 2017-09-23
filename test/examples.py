@@ -27,7 +27,7 @@ def function_1():
     k, l = 4, 2.0 # type: (int, float)
     m, (n, o) = 4, (2.0, 'eggs')
     p, (r, s) = 4, (2.0, 'eggs') # type: int, (float, str)
-    t, (u, v) = 4, (2.0, 'eggs') # type: (int, (float, str))
+    t__, (u, v) = 4, (2.0, 'eggs') # type: (int, (float, str))
     w = w1 = w2 = 'bacon'
     x = x1 = x2 = 'bacon' # type: str
     for y in [0, 1, 2]: # type: int
@@ -55,25 +55,25 @@ def function_3():
 
 def function_a4():
     """function with very complex type annotations, ver. 1"""
-    spam , ( ( ham , bacon ) , eggs ) , sausage , beans = \
+    spam, ((ham, bacon), eggs), sausage, beans = \
         '', ((0, 0.0), True), None, b'' # type: str, ((int, float), bool), object, bytes
 
 
 def function_b4():
     """function with very complex type annotations, ver. 2"""
-    spam , ( ham , ( bacon , eggs ) ) , sausage , beans = \
+    spam, (ham, (bacon, eggs)), sausage, beans = \
         '', (0, (0.0, True)), None, b'' # type: str, (int, (float, bool)), object, bytes
 
 
 def function_c4():
     """function with very complex type annotations, ver. 3"""
-    spam , ( ham , ( bacon , eggs ) , sausage ) , beans = \
+    spam, (ham, (bacon, eggs), sausage), beans = \
         '', (0, (0.0, True), None), b'' # type: str, (int, (float, bool), object), bytes
 
 
 def function_a5():
     """function with very complex type annotations, ver. 4"""
-    spam , (ham, eggs), (sausage, bacon) = \
+    spam, (ham, eggs), (sausage, bacon) = \
         '', (0, 0.0), (True, None) # type: str, (int, float), (bool, object)
 
 
@@ -98,7 +98,7 @@ def function_7():
 
 
 FUNCTIONS = (function_1, function_2, function_3, function_a4, function_b4, function_c4,
-            function_a5, function_b5, function_6, function_7)
+             function_a5, function_b5, function_6, function_7)
 
 FUNCTIONS_SOURCE_CODES = {function.__doc__: inspect.getsource(function) for function in FUNCTIONS}
 
@@ -122,7 +122,7 @@ _FUNCTIONS_LOCAL_VARS = {
         'p': (int,),
         'r': (float,),
         's': (str,),
-        't': (int,),
+        't__': (int,),
         'u': (float,),
         'v': (str,),
         'w': (),
@@ -216,3 +216,11 @@ _CLASSES_MEMBERS = {
 CLASSES_MEMBERS = {cls.__doc__: _CLASSES_MEMBERS[int(cls.__name__[-1])] for cls in CLASSES}
 
 SOURCE_CODES = {**FUNCTIONS_SOURCE_CODES, **CLASSES_SOURCE_CODES}
+
+GLOBALS_NONE = None
+
+GLOBALS_CLEAR = {'__builtins__': globals()['__builtins__']}
+
+GLOBALS_EXTERNAL = {'__builtins__': globals()['__builtins__'], 'np': np, 'st': st, 't': t}
+
+GLOBALS_EXAMPLES = (GLOBALS_NONE, GLOBALS_CLEAR, GLOBALS_EXTERNAL)

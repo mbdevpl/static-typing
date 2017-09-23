@@ -1,3 +1,4 @@
+"""Function definition node - FunctionDef."""
 
 import ast
 import enum

@@ -3,18 +3,15 @@
 import ast
 import logging
 import unittest
-import typing as t
 
-import numpy as np
-
-import static_typing as st
 from static_typing.ast_manipulation.type_hint_resolver import TypeHintResolver
 from static_typing.nodes.module import StaticallyTypedModule
 from static_typing.nodes.function_def import StaticallyTypedFunctionDef
 from static_typing.nodes.class_def import StaticallyTypedClassDef
 from static_typing.nodes.declaration import StaticallyTypedAssign, StaticallyTypedAnnAssign
 from .examples import \
-    AST_MODULES, FUNCTIONS_SOURCE_CODES, FUNCTIONS_LOCAL_VARS, CLASSES_SOURCE_CODES, CLASSES_MEMBERS
+    AST_MODULES, FUNCTIONS_SOURCE_CODES, FUNCTIONS_LOCAL_VARS, CLASSES_SOURCE_CODES, \
+    CLASSES_MEMBERS, GLOBALS_EXTERNAL
 
 _LOG = logging.getLogger(__name__)
 
@@ -66,7 +63,7 @@ class Tests(unittest.TestCase):
 
     def test_assign(self):
         for ast_module in AST_MODULES:
-            resolver = TypeHintResolver[ast_module, ast](globals_=globals())
+            resolver = TypeHintResolver[ast_module, ast](globals_=GLOBALS_EXTERNAL)
             for description, example in FUNCTIONS_SOURCE_CODES.items():
                 tree = ast_module.parse(example)
                 for node in ast_module.walk(tree):
@@ -81,7 +78,7 @@ class Tests(unittest.TestCase):
 
     def test_ann_assign(self):
         for ast_module in AST_MODULES:
-            resolver = TypeHintResolver[ast_module, ast](globals_=globals())
+            resolver = TypeHintResolver[ast_module, ast](globals_=GLOBALS_EXTERNAL)
             for description, example in FUNCTIONS_SOURCE_CODES.items():
                 tree = ast_module.parse(example)
                 for node in ast_module.walk(tree):

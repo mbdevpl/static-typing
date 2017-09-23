@@ -1,3 +1,4 @@
+"""Class definition node - ClassDef."""
 
 import ast
 import typing as t
