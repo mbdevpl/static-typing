@@ -54,7 +54,7 @@ def create_type_hint_resolver(ast_module, parser_ast_module):
             """
             if isinstance(hint, str):
                 hint = ast_module.parse(hint, mode='eval').body
-            if not isinstance(hint, ast_module.AST):
+            if not isinstance(hint, (ast_module.AST, parser_ast_module.AST)):
                 _LOG.warning('given type hint is not AST but %s', type(hint))
                 return hint
             if ast_module is not parser_ast_module:

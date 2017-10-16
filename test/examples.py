@@ -217,6 +217,16 @@ CLASSES_MEMBERS = {cls.__doc__: _CLASSES_MEMBERS[int(cls.__name__[-1])] for cls 
 
 SOURCE_CODES = {**FUNCTIONS_SOURCE_CODES, **CLASSES_SOURCE_CODES}
 
+TYPE_HINTS = {ast_module: {
+    'int': ('int', ast_module.Name('int', ast_module.Load()), int),
+    'str': ('str', ast_module.Name('str', ast_module.Load()), str),
+    'dict as AST': (ast_module.Name('dict', ast_module.Load()), ast_module.Name('dict', ast_module.Load()), dict),
+    'hint with external type': ('np.float', ast_module.Attribute(
+        ast_module.Name('np', ast_module.Load()), 'float', ast_module.Load()), np.float),
+    'unresolvable hint': (int, int, int),
+    'unresolvable hint with external type': (np.int, np.int, np.int)}
+              for ast_module in AST_MODULES}
+
 GLOBALS_NONE = None
 
 GLOBALS_CLEAR = {'__builtins__': globals()['__builtins__']}

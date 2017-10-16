@@ -9,7 +9,7 @@ from static_typing.ast_manipulation.recursive_ast_visitor import RecursiveAstVis
 from static_typing.ast_manipulation.recursive_ast_transformer import RecursiveAstTransformer
 from static_typing.ast_manipulation.ast_transcriber import AstTranscriber
 from static_typing.ast_manipulation.type_hint_resolver import TypeHintResolver
-from .examples import AST_MODULES, SOURCE_CODES, GLOBALS_EXTERNAL, GLOBALS_EXAMPLES
+from .examples import AST_MODULES, SOURCE_CODES, TYPE_HINTS, GLOBALS_EXTERNAL, GLOBALS_EXAMPLES
 
 _LOG = logging.getLogger(__name__)
 
@@ -89,12 +89,32 @@ class Tests(unittest.TestCase):
                 with self.assertRaises(NotImplementedError):
                     TypeHintResolver[ast_module, parser_ast_module](eval_)
                 continue
+            resolver = TypeHintResolver[ast_module, parser_ast_module](
+                eval_, globals_, locals_)
+            for description, (hint, parsed_hint, static_type) in TYPE_HINTS[parser_ast_module].items():
+                with self.subTest(ast_module=ast_module, parser_ast_module=parser_ast_module,
+                                  eval=eval_, globals_is_none=globals_ is None,
+                                  locals_is_none=locals_ is None):
+                    resolvable = isinstance(hint, (str, ast_module.AST, parser_ast_module.AST))
+                    if resolvable and eval_ and 'external type' in description \
+                            and globals_ is not GLOBALS_EXTERNAL:
+                        with self.assertRaises(NameError):
+                            resolver.resolve_type_hint(hint)
+                        continue
+                    resolved_hint = resolver.resolve_type_hint(hint)
+                    if not resolvable:
+                        self.assertIs(resolved_hint, hint)
+                    elif eval_:
+                        self.assertIsInstance(resolved_hint, type)
+                        self.assertIs(resolved_hint, static_type)
+                    else:
+                        self.assertIsInstance(resolved_hint, parser_ast_module.AST)
+                        self.assertEqual(parser_ast_module.dump(resolved_hint),
+                                         parser_ast_module.dump(parsed_hint))
             for description, example in SOURCE_CODES.items():
                 with self.subTest(ast_module=ast_module, parser_ast_module=parser_ast_module,
                                   eval=eval_, globals_is_none=globals_ is None,
                                   locals_is_none=locals_ is None, msg=description, example=example):
-                    resolver = TypeHintResolver[ast_module, parser_ast_module](
-                        eval_, globals_, locals_)
                     tree = ast_module.parse(example)
                     if eval_ and 'external types' in description \
                             and globals_ is not GLOBALS_EXTERNAL:
