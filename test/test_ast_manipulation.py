@@ -19,49 +19,51 @@ class Tests(unittest.TestCase):
     maxDiff = None
 
     def test_recursive_ast_visitor(self):
-        for ast_module in AST_MODULES:
-            for description, example in SOURCE_CODES.items():
-                with self.subTest(ast_module=ast_module, msg=description, example=example):
-                    class visitor_class(RecursiveAstVisitor[ast_module]):
-                        visited_node = False
-                        visited_field = False
-                        def visit_node(self, *_):
-                            type(self).visited_node = True
-                        def visit_field(self, *_):
-                            type(self).visited_field = True
-                    visitor = visitor_class()
-                    tree = ast_module.parse(example)
-                    visitor.visit(tree)
-                    self.assertTrue(visitor_class.visited_node)
-                    self.assertTrue(visitor_class.visited_field)
+        for ast_module, fields_first, (description, example) in itertools.product(
+                AST_MODULES, (False, True), SOURCE_CODES.items()):
+            with self.subTest(ast_module=ast_module, msg=description, example=example):
+                class visitor_class(RecursiveAstVisitor[ast_module]):
+                    visited_node = False
+                    visited_field = False
+                    def visit_node(self, node):
+                        type(self).visited_node = True
+                        super().visit_node(node)
+                    def visit_field(self, node, name, value):
+                        type(self).visited_field = True
+                        super().visit_field(node, name, value)
+                visitor = visitor_class(fields_first)
+                tree = ast_module.parse(example)
+                visitor.visit(tree)
+                self.assertTrue(visitor_class.visited_node)
+                self.assertTrue(visitor_class.visited_field)
 
     def test_recursive_ast_transformer(self):
-        for ast_module in AST_MODULES:
-            for description, example in SOURCE_CODES.items():
-                with self.subTest(ast_module=ast_module, msg=description, example=example):
-                    class transformer_class(RecursiveAstTransformer[ast_module]):
-                        transformed_node = False
-                        transformed_field = False
-                        def visit_node(self, node):
-                            type(self).transformed_node = True
-                            node.lineno = -1
-                            return node
-                        def visit_field(self, node, name, value):
-                            type(self).transformed_field = True
-                            return value
-                    transformer = transformer_class()
-                    tree = ast_module.parse(example)
-                    tree = transformer.visit(tree)
-                    self.assertTrue(transformer_class.transformed_node)
-                    self.assertTrue(transformer_class.transformed_field)
-                    original_tree = ast_module.parse(example)
-                    self.assertEqual(ast_module.dump(tree), ast_module.dump(original_tree))
-                    self.assertEqual(
-                        ast_module.dump(tree, annotate_fields=True),
-                        ast_module.dump(original_tree, annotate_fields=True))
-                    self.assertNotEqual(
-                        ast_module.dump(tree, include_attributes=True),
-                        ast_module.dump(original_tree, include_attributes=True))
+        for ast_module, fields_first, (description, example) in itertools.product(
+                AST_MODULES, (False, True), SOURCE_CODES.items()):
+            with self.subTest(ast_module=ast_module, msg=description, example=example):
+                class transformer_class(RecursiveAstTransformer[ast_module]):
+                    transformed_node = False
+                    transformed_field = False
+                    def visit_node(self, node):
+                        type(self).transformed_node = True
+                        node.lineno = -1
+                        return super().visit_node(node)
+                    def visit_field(self, node, name, value):
+                        type(self).transformed_field = True
+                        return super().visit_field(node, name, value)
+                transformer = transformer_class(fields_first)
+                tree = ast_module.parse(example)
+                tree = transformer.visit(tree)
+                self.assertTrue(transformer_class.transformed_node)
+                self.assertTrue(transformer_class.transformed_field)
+                original_tree = ast_module.parse(example)
+                self.assertEqual(ast_module.dump(tree), ast_module.dump(original_tree))
+                self.assertEqual(
+                    ast_module.dump(tree, annotate_fields=True),
+                    ast_module.dump(original_tree, annotate_fields=True))
+                self.assertNotEqual(
+                    ast_module.dump(tree, include_attributes=True),
+                    ast_module.dump(original_tree, include_attributes=True))
 
     def test_ast_transcriber(self):
         for from_ast_module, to_ast_module in itertools.product(AST_MODULES, AST_MODULES):
