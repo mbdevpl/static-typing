@@ -138,7 +138,7 @@ _FUNCTIONS_LOCAL_VARS = {
         'b': (t.List[int],),
         'c': (st.ndarray[2, float],),
         'd': (st.ndarray[2, float],),
-        'd': (np.double,)},
+        'e': (np.double,)},
     3: {
         'spam': (str,),
         'ham': (int,),
@@ -146,9 +146,9 @@ _FUNCTIONS_LOCAL_VARS = {
     4: {
         'spam': (str,),
         'ham': (int,),
-        'eggs': (float,),
-        'sausage': (bool,),
-        'bacon': (object,),
+        'bacon': (float,),
+        'eggs': (bool,),
+        'sausage': (object,),
         'beans': (bytes,)},
     5: {
         'spam': (str,),
@@ -198,20 +198,22 @@ class class_3:
         self.z, self.t = 0.1, 0 # type: float, int
 
 
-CLASSES = (class_1, class_2, class_3)
+class class_4:
+    """class with class fields"""
+    spam = 'lovely spam'
+    ham = 1 # type: int
+    eggs: bool = True
+
+
+CLASSES = (class_1, class_2, class_3, class_4)
 
 CLASSES_SOURCE_CODES = {cls.__doc__: inspect.getsource(cls) for cls in CLASSES}
 
 _CLASSES_MEMBERS = {
-    1: {
-        '__init__',
-        'do_nothing',
-        'do_something',
-        'make_noise'},
-    2: {
-        '__init__'},
-    3: {
-        '__init__'}}
+    1: (['x'], [], {'__init__', 'do_nothing', 'do_something', 'make_noise'}),
+    2: ([], ['x', 'y', 'z', 't'], {'__init__'}),
+    3: ([], ['x', 'y', 'z', 't'], {'__init__'}),
+    4: (['spam', 'ham', 'eggs'], [], set())}
 
 CLASSES_MEMBERS = {cls.__doc__: _CLASSES_MEMBERS[int(cls.__name__[-1])] for cls in CLASSES}
 
