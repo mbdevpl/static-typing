@@ -53,6 +53,8 @@ def create_statically_typed_assign(ast_module):
     class StaticallyTypedAssignClass(ast_module.Assign, StaticallyTypedDeclaration[ast_module]):
 
         def _add_type_info(self):
+            if not getattr(self, 'targets', None):
+                return
             self._add_declarations(self.targets, getattr(self, 'type_comment', None))
 
     return StaticallyTypedAssignClass
@@ -68,6 +70,8 @@ def create_statically_typed_ann_assign(ast_module):
             ast_module.AnnAssign, StaticallyTypedDeclaration[ast_module]):
 
         def _add_type_info(self):
+            if not getattr(self, 'target', None):
+                return
             self._add_declaration(self.target, self.annotation)
 
     return StaticallyTypedAnnAssignClass

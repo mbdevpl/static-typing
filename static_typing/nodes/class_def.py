@@ -42,6 +42,8 @@ def create_statically_typed_class_def(ast_module):
                 var_type_info.add(type_info)
 
         def _add_type_info(self):
+            if not getattr(self, 'body', None):
+                return
             for node in self.body:
                 if isinstance(node, ast_module.FunctionDef):
                     if not isinstance(node, StaticallyTypedFunctionDef[ast_module]):

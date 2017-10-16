@@ -8,14 +8,16 @@ import unittest
 import ordered_set
 
 from static_typing.ast_manipulation.type_hint_resolver import TypeHintResolver
+from static_typing.nodes.statically_typed import StaticallyTyped
 from static_typing.nodes.module import StaticallyTypedModule
 from static_typing.nodes.function_def import StaticallyTypedFunctionDef
 from static_typing.nodes.class_def import StaticallyTypedClassDef
 from static_typing.nodes.declaration import StaticallyTypedAssign, StaticallyTypedAnnAssign
+from static_typing.nodes.context import StaticallyTypedFor, StaticallyTypedWith
 from static_typing.static_typer import StaticTyper
 from .examples import \
     AST_MODULES, FUNCTIONS_SOURCE_CODES, FUNCTIONS_LOCAL_VARS, CLASSES_SOURCE_CODES, \
-    CLASSES_MEMBERS, GLOBALS_EXTERNAL
+    CLASSES_MEMBERS, MODULES_SOURCE_CODES, GLOBALS_EXTERNAL
 
 _LOG = logging.getLogger(__name__)
 
@@ -23,6 +25,20 @@ _LOG = logging.getLogger(__name__)
 class Tests(unittest.TestCase):
 
     maxDiff = None
+
+    def test_statically_typed(self):
+        for ast_module in AST_MODULES:
+            with self.assertRaises(NotImplementedError):
+                StaticallyTyped[ast_module]()
+
+    def test_empty(self):
+        for ast_module, class_family in itertools.product(AST_MODULES, [
+                StaticallyTypedModule, StaticallyTypedFunctionDef, StaticallyTypedClassDef,
+                StaticallyTypedAssign, StaticallyTypedAnnAssign, StaticallyTypedFor,
+                StaticallyTypedWith]):
+            node = class_family[ast_module]()
+            self.assertIsInstance(repr(node), str)
+            self.assertIsInstance(str(node), str)
 
     def test_module(self):
         for ast_module in AST_MODULES:
@@ -42,6 +58,13 @@ class Tests(unittest.TestCase):
                     self.assertEqual(len(module._classes), classes_count)
                     self.assertEqual(len(module._functions), functions_count)
                     _LOG.info('%s', module)
+
+            for description, example in MODULES_SOURCE_CODES.items():
+                with self.subTest(ast_module=ast_module, msg=description, example=example):
+                    tree = ast_module.parse(example)
+                    module = resolver.visit(tree)
+                    module = typer.visit(tree)
+                    self.assertIsInstance(module, StaticallyTypedModule[ast_module])
 
     def test_function_def(self):
         for ast_module in AST_MODULES:

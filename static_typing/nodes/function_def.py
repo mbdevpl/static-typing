@@ -10,6 +10,7 @@ import typed_ast.ast3
 
 from .statically_typed import StaticallyTyped
 from .declaration import StaticallyTypedAssign, StaticallyTypedAnnAssign
+from .context import StaticallyTypedFor, StaticallyTypedWith
 
 _LOG = logging.getLogger(__name__)
 
@@ -48,6 +49,8 @@ def create_statically_typed_function_def(ast_module):
                 var_type_info.add(type_info)
 
         def _add_type_info(self):
+            if not getattr(self, 'body', None):
+                return
             if len(self.decorator_list) == 0:
                 if len(self.args.args) == 0:
                     self._kind = FunctionKind.Function
@@ -98,15 +101,20 @@ def create_statically_typed_function_def(ast_module):
                 for node in ast_module.walk(stmt):
                     if isinstance(node, ast_module.Assign):
                         if not isinstance(node, StaticallyTypedAssign[ast_module]):
-                            raise RuntimeError()
+                            raise TypeError('expected a statically typed AST node')
                         variables += list(node._vars.items())
                     elif isinstance(node, ast_module.AnnAssign):
                         if not isinstance(node, StaticallyTypedAnnAssign[ast_module]):
-                            raise RuntimeError()
+                            raise TypeError('expected a statically typed AST node')
                         variables += list(node._vars.items())
                     elif isinstance(node, ast_module.For):
-                        _LOG.warning('well...')
-                        variables += [(node.target, getattr(node, 'type_comment', None))]
+                        if not isinstance(node, StaticallyTypedFor[ast_module]):
+                            raise TypeError('expected a statically typed AST node')
+                        variables += list(node._index_vars.items())
+                    elif isinstance(node, ast_module.With):
+                        if not isinstance(node, StaticallyTypedWith[ast_module]):
+                            raise TypeError('expected a statically typed AST node')
+                        variables += list(node._context_vars.items())
 
             for k, v in variables:
                 if isinstance(k, ast_module.Name):

@@ -6,8 +6,8 @@ import typed_ast.ast3
 from .ast_manipulation import RecursiveAstTransformer
 from .nodes import \
     StaticallyTypedModule, StaticallyTypedFunctionDef, StaticallyTypedClassDef, \
-    StaticallyTypedAssign, StaticallyTypedAnnAssign
-# StaticallyTypedFor, StaticallyTypedWhile, StaticallyTypedIf, StaticallyTypedWith
+    StaticallyTypedAssign, StaticallyTypedAnnAssign, StaticallyTypedFor, StaticallyTypedWith
+# , StaticallyTypedWhile, StaticallyTypedIf
 
 def create_static_typer(ast_module):
 
@@ -22,10 +22,10 @@ def create_static_typer(ast_module):
             ast_module.ClassDef: StaticallyTypedClassDef,
             ast_module.Assign: StaticallyTypedAssign,
             ast_module.AnnAssign: StaticallyTypedAnnAssign,
-            # ast_module.For: StaticallyTypedFor,
+            ast_module.For: StaticallyTypedFor,
             # ast_module.While: StaticallyTypedWhile,
             # ast_module.If: StaticallyTypedIf,
-            # ast_module.With: StaticallyTypedWith
+            ast_module.With: StaticallyTypedWith
             }
 
         def visit_node(self, node):

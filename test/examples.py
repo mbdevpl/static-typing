@@ -1,7 +1,9 @@
 """Examples to be used in tests."""
 
 import ast
+import contextlib
 import inspect
+import sys
 import typing as t
 
 import numpy as np
@@ -97,8 +99,28 @@ def function_7():
     spam, ham = ham, spam = None, None # type: int, str
 
 
-FUNCTIONS = (function_1, function_2, function_3, function_a4, function_b4, function_c4,
-             function_a5, function_b5, function_6, function_7)
+def function_a8(spam: int = 0, ham: str = '', eggs: float = 0.0):
+    """function with args with type annotations"""
+    spam, ham, eggs = None, None, None
+
+
+def function_b8(spam=0, # type: int
+                ham='', # type: str
+                eggs=0.0): # type: float
+    """function with args with type comments"""
+    spam, ham, eggs = None, None, None
+
+
+def function_9():
+    """function with context manager"""
+    with contextlib.redirect_stderr(sys.stdout):
+        pass
+    with contextlib.redirect_stdout(sys.stderr) as spam:  # type: object
+        pass
+
+
+FUNCTIONS = (function_1, function_2, function_3, function_a4, function_b4, function_c4, function_a5,
+             function_b5, function_6, function_7, function_a8, function_b8, function_9)
 
 FUNCTIONS_SOURCE_CODES = {function.__doc__: inspect.getsource(function) for function in FUNCTIONS}
 
@@ -161,7 +183,13 @@ _FUNCTIONS_LOCAL_VARS = {
         'ham': (str, int)},
     7: {
         'spam': (int, str),
-        'ham': (str, int)}}
+        'ham': (str, int)},
+    8: {
+        'spam': (),
+        'ham': (),
+        'eggs': ()},
+    9: {
+        'spam': (object,)}}
 
 FUNCTIONS_LOCAL_VARS = {function.__doc__: _FUNCTIONS_LOCAL_VARS[int(function.__name__[-1])]
                         for function in FUNCTIONS}
@@ -217,7 +245,14 @@ _CLASSES_MEMBERS = {
 
 CLASSES_MEMBERS = {cls.__doc__: _CLASSES_MEMBERS[int(cls.__name__[-1])] for cls in CLASSES}
 
-SOURCE_CODES = {**FUNCTIONS_SOURCE_CODES, **CLASSES_SOURCE_CODES}
+MODULES_SOURCE_CODES = {
+    'simple module': 'import contextlib\n\n{}\n\nTEST = 1\n\n{}'.format(
+        inspect.getsource(function_9), inspect.getsource(class_4)),
+    'simple module with external types': '{}\n\n{}'.format(
+        '\n'.join(['import numpy as np', 'import static_typing as st', 'import typing as t']),
+        inspect.getsource(function_2))}
+
+SOURCE_CODES = {**FUNCTIONS_SOURCE_CODES, **CLASSES_SOURCE_CODES, **MODULES_SOURCE_CODES}
 
 TYPE_HINTS = {ast_module: {
     'int': ('int', ast_module.Name('int', ast_module.Load()), int),
