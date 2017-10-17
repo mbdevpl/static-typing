@@ -1,3 +1,5 @@
 """Version of static_typing package."""
 
-VERSION = '0.1.0.dev2'
+from version_query import predict_version_str
+
+VERSION = predict_version_str()
