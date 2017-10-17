@@ -36,7 +36,7 @@ Extends parser from ``typed_ast`` module.
 requirements
 ------------
 
-Python version >= 3.6.
+Python version >= 3.4.
 
 Python libraries as specified in `<requirements.txt>`_.
 
