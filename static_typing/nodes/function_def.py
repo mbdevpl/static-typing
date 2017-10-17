@@ -3,6 +3,7 @@
 import ast
 import enum
 import logging
+import sys
 import typing as t
 
 import ordered_set
@@ -102,7 +103,8 @@ def create_statically_typed_function_def(ast_module):
                     if isinstance(node, ast_module.Assign):
                         assert isinstance(node, StaticallyTypedAssign[ast_module]), type(node)
                         variables += list(node._vars.items())
-                    elif isinstance(node, ast_module.AnnAssign):
+                    elif (ast_module is not ast or sys.version_info[:2] >= (3, 6)) \
+                            and isinstance(node, ast_module.AnnAssign):
                         assert isinstance(node, StaticallyTypedAnnAssign[ast_module]), type(node)
                         variables += list(node._vars.items())
                     elif isinstance(node, ast_module.For):

@@ -3,6 +3,7 @@
 import ast
 import contextlib
 import inspect
+import itertools
 import sys
 import typing as t
 
@@ -13,14 +14,13 @@ import typed_ast.ast3
 AST_MODULES = (ast, typed_ast.ast3)
 
 
-def function_1():
+def function_a1():
     """function with built-in types"""
     a = 0
-    b: float
-    b = 0.0
+    b = 0.0 # type: float
     c = 'spam'
-    c: str = 'ham'
-    d: int
+    c = 'ham' # type: str
+    d = 0 # type: int
     e = 0.0 # type: float
     f = 0
     f = 0 # type: int
@@ -36,13 +36,13 @@ def function_1():
         z = object() # type: object
 
 
-def function_2():
+def function_a2():
     """function with external types"""
-    a: t.List[int] = [0, 1]
+    a = [0, 1] # type: t.List[int]
     b = [0, 1] # type: t.List[int]
-    c: st.ndarray[2, float] = None
+    c = None # type: st.ndarray[2, float]
     d = None # type: st.ndarray[2, float]
-    e: np.double
+    e = 0.0 # type: np.double
 
 
 def function_3():
@@ -85,13 +85,13 @@ def function_b5():
         ('', 0), 0.0, (True, None) # type: (str, int), float, (bool, object)
 
 
-def function_6(eggs: bool = True):
+def function_a6(eggs: bool = True):
     """function with conflicting types in branches"""
-    spam: bool = eggs
+    spam = eggs # type: bool
     if spam:
-        ham: str = ''
+        ham = '' # type: str
     else:
-        ham: int = 0
+        ham = 0 # type: int
 
 
 def function_7():
@@ -113,14 +113,18 @@ def function_b8(spam=0, # type: int
 
 def function_9():
     """function with context manager"""
-    with contextlib.redirect_stderr(sys.stdout):
+    with contextlib.redirect_stdout(sys.stderr):
         pass
     with contextlib.redirect_stdout(sys.stderr) as spam:  # type: object
         pass
 
+FUNCTIONS = (function_a1, function_a2, function_3, function_a4, function_b4, function_c4,
+             function_a5, function_b5, function_a6, function_7, function_a8, function_b8,
+             function_9)
 
-FUNCTIONS = (function_1, function_2, function_3, function_a4, function_b4, function_c4, function_a5,
-             function_b5, function_6, function_7, function_a8, function_b8, function_9)
+if sys.version_info[:2] >= (3, 6):
+    from .examples_py36 import function_b1, function_b2, function_b6
+    FUNCTIONS += (function_b1, function_b2, function_b6)
 
 FUNCTIONS_SOURCE_CODES = {function.__doc__: inspect.getsource(function) for function in FUNCTIONS}
 
@@ -210,33 +214,37 @@ class class_1:
         return 'noise'
 
 
-class class_2:
+class class_a2:
     """class with instance fields"""
     def __init__(self):
         self.x = {'spam': 'spam spam spam'} # type: dict
-        self.y: float = 0.1
+        self.y = 0.1 # type: float
         self.z, self.t = 0.1, 0 # type: float, int
         self.x['lovely'] = 'spam' # type: str
 
 
-class class_3:
+class class_a3:
     """class with instance fields using external types"""
     def __init__(self):
         self.x = 0 # type: np.float16
-        self.y: np.float32 = 0.1
+        self.y = 0.1 # type: np.float32
         self.z, self.t = 0.1, 0 # type: float, int
 
 
-class class_4:
+class class_a4:
     """class with class fields"""
     spam = {}
     ham = 1 # type: int
-    eggs: bool = True
+    eggs = True # type: bool
     spam['lovely'] = 'spam' # type: str
-    spam['lovely']: str = 'spam'
+    spam['not lovely'] = 'ham' # type: str
 
 
-CLASSES = (class_1, class_2, class_3, class_4)
+CLASSES = (class_1, class_a2, class_a3, class_a4)
+
+if sys.version_info[:2] >= (3, 6):
+    from .examples_py36 import class_b2, class_b3, class_b4
+    CLASSES += (class_b2, class_b3, class_b4)
 
 CLASSES_SOURCE_CODES = {cls.__doc__: inspect.getsource(cls) for cls in CLASSES}
 
@@ -250,12 +258,13 @@ CLASSES_MEMBERS = {cls.__doc__: _CLASSES_MEMBERS[int(cls.__name__[-1])] for cls 
 
 MODULES_SOURCE_CODES = {
     'simple module': 'import contextlib\n\n{}\n\nTEST = 1\n\n{}'.format(
-        inspect.getsource(function_9), inspect.getsource(class_4)),
+        inspect.getsource(function_9), inspect.getsource(class_a4)),
     'simple module with external types': '{}\n\n{}'.format(
         '\n'.join(['import numpy as np', 'import static_typing as st', 'import typing as t']),
-        inspect.getsource(function_2))}
+        inspect.getsource(function_a2))}
 
-SOURCE_CODES = {**FUNCTIONS_SOURCE_CODES, **CLASSES_SOURCE_CODES, **MODULES_SOURCE_CODES}
+SOURCE_CODES = {k: v for k, v in itertools.chain(
+    FUNCTIONS_SOURCE_CODES.items(), CLASSES_SOURCE_CODES.items(), MODULES_SOURCE_CODES.items())}
 
 TYPE_HINTS = {ast_module: {
     'int': ('int', ast_module.Name('int', ast_module.Load()), int),

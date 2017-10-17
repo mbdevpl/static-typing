@@ -125,8 +125,9 @@ class Tests(unittest.TestCase):
                         tree = preresolver.visit(tree)
                     if eval_ and 'external types' in description \
                             and globals_ is not GLOBALS_EXTERNAL:
-                        with self.assertRaises(NameError):
-                            resolver.visit(tree)
+                        if ast_module is not ast:
+                            with self.assertRaises(NameError):
+                                resolver.visit(tree)
                         continue
                     tree = resolver.visit(tree)
                     for node in ast_module.walk(tree):

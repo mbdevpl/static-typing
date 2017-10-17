@@ -2,7 +2,7 @@
 
 import unittest
 
-from .examples import function_6, FUNCTIONS, class_1, CLASSES
+from .examples import function_a6, FUNCTIONS, class_1, CLASSES
 
 class Tests(unittest.TestCase):
 
@@ -13,8 +13,8 @@ class Tests(unittest.TestCase):
             function()
 
     def test_call(self):
-        function_6(True)
-        function_6(False)
+        function_a6(True)
+        function_a6(False)
 
     def test_classes(self):
         for cls in CLASSES:

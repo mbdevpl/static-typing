@@ -3,6 +3,7 @@
 import ast
 import itertools
 import logging
+import sys
 import unittest
 
 import ordered_set
@@ -31,6 +32,7 @@ class Tests(unittest.TestCase):
             with self.assertRaises(NotImplementedError):
                 StaticallyTyped[ast_module]()
 
+    @unittest.skipIf(sys.version_info[:2] < (3, 6), 'requires Python >= 3.6')
     def test_empty(self):
         for ast_module, class_family in itertools.product(AST_MODULES, [
                 StaticallyTypedModule, StaticallyTypedFunctionDef, StaticallyTypedClassDef,
@@ -103,8 +105,8 @@ class Tests(unittest.TestCase):
                     #self.assertEqual(len(instance_fields), len(cls._instance_fields))
                     #self.assertEqual(len(methods), len(cls._methods))
                     #else:
-                    self.assertListEqual(class_fields, list(cls._class_fields))
-                    self.assertListEqual(instance_fields, list(cls._instance_fields))
+                    self.assertSetEqual(set(class_fields), set(cls._class_fields))
+                    self.assertSetEqual(set(instance_fields), set(cls._instance_fields))
                     self.assertSetEqual(methods, set(cls._methods))
                     _LOG.info('%s', cls)
                     # TODO: validate types of class fields
@@ -128,6 +130,7 @@ class Tests(unittest.TestCase):
                         _LOG.info('%s', assign)
                         # TODO: validate types of declared variables
 
+    @unittest.skipIf(sys.version_info[:2] < (3, 6), 'requires Python >= 3.6')
     def test_ann_assign(self):
         for ast_module in AST_MODULES:
             resolver = TypeHintResolver[ast_module, ast](globals_=GLOBALS_EXTERNAL)

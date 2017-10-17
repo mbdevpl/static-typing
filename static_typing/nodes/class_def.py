@@ -1,6 +1,7 @@
 """Class definition node - ClassDef."""
 
 import ast
+import sys
 import typing as t
 
 import ordered_set
@@ -62,7 +63,8 @@ def create_statically_typed_class_def(ast_module):
                     for k, v in node._vars.items():
                         if isinstance(k, ast_module.Name):
                             self._add_var('_class_fields', k.id, v)
-                elif isinstance(node, ast_module.AnnAssign):
+                elif (ast_module is not ast or sys.version_info[:2] >= (3, 6)) \
+                        and isinstance(node, ast_module.AnnAssign):
                     assert isinstance(node, StaticallyTypedAnnAssign[ast_module]), type(node)
                     for k, v in node._vars.items():
                         if isinstance(k, ast_module.Name):
