@@ -1,6 +1,7 @@
 """Unit tests for ast_manipulation module."""
 
 import ast
+import collections.abc
 import itertools
 import logging
 import unittest
@@ -83,11 +84,13 @@ class Tests(unittest.TestCase):
                     visitor.visit(tree)
 
     def test_type_hint_resolver(self):
-        for ast_module, parser_ast_module, eval_, globals_, locals_ in itertools.product(
-                AST_MODULES, AST_MODULES, (False, True), GLOBALS_EXAMPLES, (None,)):
+        for ast_module, parser_ast_module, eval_, globals_, locals_, preresolve \
+                in itertools.product(AST_MODULES, AST_MODULES, (False, True), GLOBALS_EXAMPLES,
+                                     (None,), (False, True)):
+            preresolver = TypeHintResolver[ast_module, parser_ast_module](False, globals_, locals_)
             if parser_ast_module is not ast and eval_:
                 with self.assertRaises(NotImplementedError):
-                    TypeHintResolver[ast_module, parser_ast_module](eval_)
+                    TypeHintResolver[ast_module, parser_ast_module](eval_, globals_, locals_)
                 continue
             resolver = TypeHintResolver[ast_module, parser_ast_module](
                 eval_, globals_, locals_)
@@ -96,6 +99,8 @@ class Tests(unittest.TestCase):
                                   eval=eval_, globals_is_none=globals_ is None,
                                   locals_is_none=locals_ is None):
                     resolvable = isinstance(hint, (str, ast_module.AST, parser_ast_module.AST))
+                    if resolvable and preresolve:
+                        hint = preresolver.resolve_type_hint(hint)
                     if resolvable and eval_ and 'external type' in description \
                             and globals_ is not GLOBALS_EXTERNAL:
                         with self.assertRaises(NameError):
@@ -116,10 +121,24 @@ class Tests(unittest.TestCase):
                                   eval=eval_, globals_is_none=globals_ is None,
                                   locals_is_none=locals_ is None, msg=description, example=example):
                     tree = ast_module.parse(example)
+                    if preresolve:
+                        tree = preresolver.visit(tree)
                     if eval_ and 'external types' in description \
                             and globals_ is not GLOBALS_EXTERNAL:
                         with self.assertRaises(NameError):
                             resolver.visit(tree)
                         continue
                     tree = resolver.visit(tree)
-                    # TODO: validate tree
+                    for node in ast_module.walk(tree):
+                        annotation = getattr(node, 'annotation', None)
+                        type_comment = getattr(node, 'type_comment', None)
+                        for hint in (annotation, type_comment):
+                            if hint is None:
+                                continue
+                            if eval_:
+                                self.assertIsInstance(hint, (type, tuple, collections.abc.Callable))
+                                if not isinstance(hint, type):
+                                    _LOG.warning('resolved hint is instance of %s: %s', type(hint), hint)
+                                    # TODO: validate non-flat resolved hints
+                            else:
+                                self.assertIsInstance(hint, parser_ast_module.AST)
