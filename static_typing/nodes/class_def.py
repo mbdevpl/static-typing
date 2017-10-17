@@ -46,8 +46,7 @@ def create_statically_typed_class_def(ast_module):
                 return
             for node in self.body:
                 if isinstance(node, ast_module.FunctionDef):
-                    if not isinstance(node, StaticallyTypedFunctionDef[ast_module]):
-                        raise TypeError('expected a statically typed AST node')
+                    assert isinstance(node, StaticallyTypedFunctionDef[ast_module]), type(node)
                     self._methods[node.name] = node
                     getattr(self, self.kind_mapping[node._kind])[node.name] = node
                     if node._kind is FunctionKind.Constructor:
@@ -59,14 +58,12 @@ def create_statically_typed_class_def(ast_module):
                                 for v in v_set:
                                     self._add_var('_instance_fields', k.attr, v)
                 elif isinstance(node, ast_module.Assign):
-                    if not isinstance(node, StaticallyTypedAssign[ast_module]):
-                        raise TypeError('expected a statically typed AST node')
+                    assert isinstance(node, StaticallyTypedAssign[ast_module]), type(node)
                     for k, v in node._vars.items():
                         if isinstance(k, ast_module.Name):
                             self._add_var('_class_fields', k.id, v)
                 elif isinstance(node, ast_module.AnnAssign):
-                    if not isinstance(node, StaticallyTypedAnnAssign[ast_module]):
-                        raise TypeError('expected a statically typed AST node')
+                    assert isinstance(node, StaticallyTypedAnnAssign[ast_module]), type(node)
                     for k, v in node._vars.items():
                         if isinstance(k, ast_module.Name):
                             self._add_var('_class_fields', k.id, v)

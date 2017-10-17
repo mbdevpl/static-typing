@@ -100,20 +100,16 @@ def create_statically_typed_function_def(ast_module):
             for stmt in self.body:
                 for node in ast_module.walk(stmt):
                     if isinstance(node, ast_module.Assign):
-                        if not isinstance(node, StaticallyTypedAssign[ast_module]):
-                            raise TypeError('expected a statically typed AST node')
+                        assert isinstance(node, StaticallyTypedAssign[ast_module]), type(node)
                         variables += list(node._vars.items())
                     elif isinstance(node, ast_module.AnnAssign):
-                        if not isinstance(node, StaticallyTypedAnnAssign[ast_module]):
-                            raise TypeError('expected a statically typed AST node')
+                        assert isinstance(node, StaticallyTypedAnnAssign[ast_module]), type(node)
                         variables += list(node._vars.items())
                     elif isinstance(node, ast_module.For):
-                        if not isinstance(node, StaticallyTypedFor[ast_module]):
-                            raise TypeError('expected a statically typed AST node')
+                        assert isinstance(node, StaticallyTypedFor[ast_module]), type(node)
                         variables += list(node._index_vars.items())
                     elif isinstance(node, ast_module.With):
-                        if not isinstance(node, StaticallyTypedWith[ast_module]):
-                            raise TypeError('expected a statically typed AST node')
+                        assert isinstance(node, StaticallyTypedWith[ast_module]), type(node)
                         variables += list(node._context_vars.items())
 
             for k, v in variables:
