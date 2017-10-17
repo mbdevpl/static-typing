@@ -1,5 +1,6 @@
 
 import ast
+import sys
 
 import typed_ast.ast3
 
@@ -21,12 +22,14 @@ def create_static_typer(ast_module):
             ast_module.FunctionDef: StaticallyTypedFunctionDef,
             ast_module.ClassDef: StaticallyTypedClassDef,
             ast_module.Assign: StaticallyTypedAssign,
-            ast_module.AnnAssign: StaticallyTypedAnnAssign,
             ast_module.For: StaticallyTypedFor,
             # ast_module.While: StaticallyTypedWhile,
             # ast_module.If: StaticallyTypedIf,
             ast_module.With: StaticallyTypedWith
             }
+
+        if ast_module is not ast or sys.version_info[:2] >= (3, 6):
+            nodes_to_be_typed[ast_module.AnnAssign] = StaticallyTypedAnnAssign
 
         def visit_node(self, node):
             """Introduce static typing information to compatible nodes of the AST."""

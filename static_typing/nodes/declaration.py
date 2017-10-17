@@ -3,6 +3,7 @@
 import ast
 import collections
 import logging
+import sys
 
 import typed_ast.ast3
 
@@ -78,4 +79,6 @@ def create_statically_typed_ann_assign(ast_module):
 
 
 StaticallyTypedAnnAssign = {ast_module: create_statically_typed_ann_assign(ast_module)
-                            for ast_module in (ast, typed_ast.ast3)}
+                            for ast_module in (
+                                (ast, typed_ast.ast3) if sys.version_info[:2] >= (3, 6)
+                                else (typed_ast.ast3,))}
