@@ -17,7 +17,7 @@ from static_typing.nodes.context import StaticallyTypedFor, StaticallyTypedWith
 from static_typing.static_typer import StaticTyper
 from .examples import \
     AST_MODULES, FUNCTIONS_SOURCE_CODES, FUNCTIONS_LOCAL_VARS, CLASSES_SOURCE_CODES, \
-    CLASSES_MEMBERS, MODULES_SOURCE_CODES, GLOBALS_EXTERNAL
+    CLASSES_MEMBERS, MODULES_SOURCE_CODES, SOURCE_CODES, GLOBALS_EXTERNAL
 
 _LOG = logging.getLogger(__name__)
 
@@ -145,3 +145,22 @@ class Tests(unittest.TestCase):
                         self.assertEqual(len(ann_assign._vars), 1)
                         _LOG.info('%s', ann_assign)
                         # TODO: validate types of declared variables
+
+    def test_use_unresolved_hints(self):
+        for ast_module in AST_MODULES:
+            if ast_module is ast:
+                continue
+            resolver = TypeHintResolver[ast_module, ast_module](False)
+            typer = StaticTyper[ast_module]()
+            raised = False
+            for description, example in SOURCE_CODES.items():
+                tree = ast_module.parse(example)
+                tree = resolver.visit(tree)
+                with self.subTest(ast_module=ast_module, msg=description, example=example):
+                    #with self.assertRaises(TypeError):
+                    # TODO: type error should be always raised
+                    try:
+                        typer.visit(tree)
+                    except TypeError:
+                        raised = True
+            self.assertTrue(raised)

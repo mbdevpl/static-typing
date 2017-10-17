@@ -213,9 +213,10 @@ class class_1:
 class class_2:
     """class with instance fields"""
     def __init__(self):
-        self.x = 'spam' # type: str
+        self.x = {'spam': 'spam spam spam'} # type: dict
         self.y: float = 0.1
         self.z, self.t = 0.1, 0 # type: float, int
+        self.x['lovely'] = 'spam' # type: str
 
 
 class class_3:
@@ -228,9 +229,11 @@ class class_3:
 
 class class_4:
     """class with class fields"""
-    spam = 'lovely spam'
+    spam = {}
     ham = 1 # type: int
     eggs: bool = True
+    spam['lovely'] = 'spam' # type: str
+    spam['lovely']: str = 'spam'
 
 
 CLASSES = (class_1, class_2, class_3, class_4)
