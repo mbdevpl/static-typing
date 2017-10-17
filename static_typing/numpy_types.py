@@ -14,16 +14,17 @@ def create_typed_numpy_ndarray(dims: int, data_type: t.ClassVar):
 
         shape = shape_loc[0][shape_loc[1]]
         if shape is not None and (dims != 1 if isinstance(shape, int) else len(shape) != dims):
-            raise ValueError(f'actual ndarray shape {shape} conflicts'
-                             f' with its declared dimensionality of {dims}')
+            raise ValueError(
+                'actual ndarray shape {} conflicts with its declared dimensionality of {}'
+                .format(shape, dims))
 
         try:
             dtype = dtype_loc[0][dtype_loc[1]]
         except KeyError:
             dtype = None
         if dtype is not None and dtype is not data_type:
-            raise TypeError(f'actual ndarray dtype {dtype} conflicts'
-                            f' with its declared dtype {data_type}')
+            raise TypeError('actual ndarray dtype {} conflicts with its declared dtype {}'
+                            .format(dtype, data_type))
         dtype_loc[0][dtype_loc[1]] = data_type
 
         #print('np.ndarray', args, kwargs)

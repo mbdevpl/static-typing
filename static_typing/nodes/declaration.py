@@ -26,10 +26,10 @@ def create_statically_typed_declaration(ast_module):
                 if type_hint is None:
                     type_hint = [None for _ in target.elts]
                 if isinstance(type_hint, ast_module.AST):
-                    raise TypeError(f'unresolved type hint: {ast_module.dump(type_hint)}')
+                    raise TypeError('unresolved type hint: {}'.format(ast_module.dump(type_hint)))
                 if not isinstance(type_hint, collections.abc.Iterable):
-                    raise TypeError(
-                        f'expected iterable type hint but got {type(type_hint)}: {type_hint}')
+                    raise TypeError('expected iterable type hint but got {}: {}'
+                                    .format(type(type_hint), type_hint))
                 for elt, elt_hint in zip(target.elts, type_hint):
                     self._add_declaration(elt, elt_hint)
                 return

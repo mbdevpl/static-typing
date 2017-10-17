@@ -23,13 +23,13 @@ def create_statically_typed(ast_module):
             raise NotImplementedError()
 
         def __repr__(self):
-            return f'<{type(self).__name__}@{id(self)}>'
+            return '<{}@{}>'.format(type(self).__name__, id(self))
 
         def __str__(self):
             short_type_name = type(self).__name__.replace('StaticallyTyped', '')
-            fields = [f'{len(getattr(self, f"_{field_name}"))} {field_name}'
+            fields = ['{} {}'.format(len(getattr(self, '_' + field_name)), field_name)
                       for field_name in type(self)._type_fields]
-            return f'{short_type_name}({" ".join(fields)})'
+            return '{}({})'.format(short_type_name, ' '.join(fields))
 
     return StaticallyTypedClass
 
