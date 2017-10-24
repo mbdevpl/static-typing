@@ -9,7 +9,7 @@ from static_typing.augment import augment
 from static_typing.parse import parse
 from .examples import \
     AST_MODULES, FUNCTIONS_SOURCE_CODES, CLASSES_SOURCE_CODES, GLOBALS_EXTERNAL, \
-    GLOBALS_EXAMPLES
+    GLOBALS_EXAMPLES, LOCALS_EXTERNAL, LOCALS_EXAMPLES
 
 _LOG = logging.getLogger(__name__)
 
@@ -18,14 +18,18 @@ class Tests(unittest.TestCase):
 
     maxDiff = None
 
+    def _should_fail(self, description, globals_, locals_):
+        return 'external types' in description and globals_ is not GLOBALS_EXTERNAL \
+            and locals_ is not LOCALS_EXTERNAL
+
     @unittest.skipIf(sys.version_info[:2] < (3, 6), 'requires Python >= 3.6')
     def test_augment_functions(self):
         for ast_module, globals_, locals_ in itertools.product(
-                AST_MODULES, GLOBALS_EXAMPLES, (None,)):
+                AST_MODULES, GLOBALS_EXAMPLES, LOCALS_EXAMPLES):
             for description, example in FUNCTIONS_SOURCE_CODES.items():
                 with self.subTest(ast_module=ast_module, msg=description, example=example):
                     tree = ast_module.parse(example)
-                    if 'external types' in description and globals_ is not GLOBALS_EXTERNAL:
+                    if self._should_fail(description, globals_, locals_):
                         with self.assertRaises(NameError):
                             augment(tree, globals_, locals_, ast_module)
                         continue
@@ -35,11 +39,11 @@ class Tests(unittest.TestCase):
     @unittest.skipIf(sys.version_info[:2] < (3, 6), 'requires Python >= 3.6')
     def test_augment_classes(self):
         for ast_module, globals_, locals_ in itertools.product(
-                AST_MODULES, GLOBALS_EXAMPLES, (None,)):
+                AST_MODULES, GLOBALS_EXAMPLES, LOCALS_EXAMPLES):
             for description, example in CLASSES_SOURCE_CODES.items():
                 with self.subTest(ast_module=ast_module, msg=description, example=example):
                     tree = ast_module.parse(example)
-                    if 'external types' in description and globals_ is not GLOBALS_EXTERNAL:
+                    if self._should_fail(description, globals_, locals_):
                         with self.assertRaises(NameError):
                             augment(tree, globals_, locals_, ast_module)
                         continue
@@ -49,10 +53,10 @@ class Tests(unittest.TestCase):
     @unittest.skipIf(sys.version_info[:2] < (3, 6), 'requires Python >= 3.6')
     def test_parse_functions(self):
         for ast_module, globals_, locals_ in itertools.product(
-                AST_MODULES, GLOBALS_EXAMPLES, (None,)):
+                AST_MODULES, GLOBALS_EXAMPLES, LOCALS_EXAMPLES):
             for description, example in FUNCTIONS_SOURCE_CODES.items():
                 with self.subTest(ast_module=ast_module, msg=description, example=example):
-                    if 'external types' in description and globals_ is not GLOBALS_EXTERNAL:
+                    if self._should_fail(description, globals_, locals_):
                         with self.assertRaises(NameError):
                             parse(example, globals_, locals_, ast_module)
                         continue
@@ -62,10 +66,10 @@ class Tests(unittest.TestCase):
     @unittest.skipIf(sys.version_info[:2] < (3, 6), 'requires Python >= 3.6')
     def test_parse_classes(self):
         for ast_module, globals_, locals_ in itertools.product(
-                AST_MODULES, GLOBALS_EXAMPLES, (None,)):
+                AST_MODULES, GLOBALS_EXAMPLES, LOCALS_EXAMPLES):
             for description, example in CLASSES_SOURCE_CODES.items():
                 with self.subTest(ast_module=ast_module, msg=description, example=example):
-                    if 'external types' in description and globals_ is not GLOBALS_EXTERNAL:
+                    if self._should_fail(description, globals_, locals_):
                         with self.assertRaises(NameError):
                             parse(example, globals_, locals_, ast_module)
                         continue

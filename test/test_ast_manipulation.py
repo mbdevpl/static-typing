@@ -10,7 +10,9 @@ from static_typing.ast_manipulation.recursive_ast_visitor import RecursiveAstVis
 from static_typing.ast_manipulation.recursive_ast_transformer import RecursiveAstTransformer
 from static_typing.ast_manipulation.ast_transcriber import AstTranscriber
 from static_typing.ast_manipulation.type_hint_resolver import TypeHintResolver
-from .examples import AST_MODULES, SOURCE_CODES, TYPE_HINTS, GLOBALS_EXTERNAL, GLOBALS_EXAMPLES
+from .examples import \
+    AST_MODULES, SOURCE_CODES, TYPE_HINTS, GLOBALS_EXTERNAL, GLOBALS_EXAMPLES, LOCALS_EXTERNAL, \
+    LOCALS_EXAMPLES
 
 _LOG = logging.getLogger(__name__)
 
@@ -86,7 +88,7 @@ class Tests(unittest.TestCase):
     def test_type_hint_resolver(self):
         for ast_module, parser_ast_module, eval_, globals_, locals_, preresolve \
                 in itertools.product(AST_MODULES, AST_MODULES, (False, True), GLOBALS_EXAMPLES,
-                                     (None,), (False, True)):
+                                     LOCALS_EXAMPLES, (False, True)):
             preresolver = TypeHintResolver[ast_module, parser_ast_module](False, globals_, locals_)
             if parser_ast_module is not ast and eval_:
                 with self.assertRaises(NotImplementedError):
@@ -102,7 +104,7 @@ class Tests(unittest.TestCase):
                     if resolvable and preresolve:
                         hint = preresolver.resolve_type_hint(hint)
                     if resolvable and eval_ and 'external type' in description \
-                            and globals_ is not GLOBALS_EXTERNAL:
+                            and globals_ is not GLOBALS_EXTERNAL and locals_ is not LOCALS_EXTERNAL:
                         with self.assertRaises(NameError):
                             resolver.resolve_type_hint(hint)
                         continue
@@ -124,7 +126,7 @@ class Tests(unittest.TestCase):
                     if preresolve:
                         tree = preresolver.visit(tree)
                     if eval_ and 'external types' in description \
-                            and globals_ is not GLOBALS_EXTERNAL:
+                            and globals_ is not GLOBALS_EXTERNAL and locals_ is not LOCALS_EXTERNAL:
                         if ast_module is not ast:
                             with self.assertRaises(NameError):
                                 resolver.visit(tree)

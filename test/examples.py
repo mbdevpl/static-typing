@@ -283,3 +283,11 @@ GLOBALS_CLEAR = {'__builtins__': globals()['__builtins__']}
 GLOBALS_EXTERNAL = {'__builtins__': globals()['__builtins__'], 'np': np, 'st': st, 't': t}
 
 GLOBALS_EXAMPLES = (GLOBALS_NONE, GLOBALS_CLEAR, GLOBALS_EXTERNAL)
+
+LOCALS_NONE = None
+
+LOCALS_CLEAR = {}
+
+LOCALS_EXTERNAL = {'np': np, 'st': st, 't': t}
+
+LOCALS_EXAMPLES = (LOCALS_NONE, LOCALS_CLEAR, LOCALS_EXTERNAL)
