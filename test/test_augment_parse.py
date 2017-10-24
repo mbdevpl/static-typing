@@ -75,3 +75,13 @@ class Tests(unittest.TestCase):
                         continue
                     tree = parse(example, globals_, locals_, ast_module)
                     # TODO: validate tree
+
+    def test_parse_in_caller_context(self):
+        example = 'my_object = MyClass() # type: MyClass'
+        with self.assertRaises(NameError):
+            parse(example)
+        class MyClass:
+            pass
+        tree = parse(example)
+        assign = tree.body[0]
+        self.assertDictEqual({k.id: v for k, v in assign._vars.items()}, {'my_object': MyClass})
