@@ -7,6 +7,7 @@ import sys
 import unittest
 
 import ordered_set
+import typed_ast.ast3
 
 from static_typing.ast_manipulation.type_hint_resolver import TypeHintResolver
 from static_typing.nodes.statically_typed import StaticallyTyped
@@ -129,6 +130,15 @@ class Tests(unittest.TestCase):
                         self.assertGreaterEqual(len(assign._vars), 1)
                         _LOG.info('%s', assign)
                         # TODO: validate types of declared variables
+
+    def test_bad_assign(self):
+        example = 'x, y = 1, 2 # type: int'
+        resolver = TypeHintResolver[typed_ast.ast3, ast](globals_=GLOBALS_EXTERNAL)
+        typer = StaticTyper[typed_ast.ast3]()
+        tree = typed_ast.ast3.parse(example)
+        tree = resolver.visit(tree)
+        with self.assertRaises(TypeError):
+            typer.visit(tree)
 
     @unittest.skipIf(sys.version_info[:2] < (3, 6), 'requires Python >= 3.6')
     def test_ann_assign(self):
