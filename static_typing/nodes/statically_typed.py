@@ -1,3 +1,4 @@
+"""Base class of any statically typed node."""
 
 import ast
 
@@ -5,8 +6,11 @@ import typed_ast.ast3
 
 
 def create_statically_typed(ast_module):
+    """Create statically typed AST node template class based on a given AST module."""
 
     class StaticallyTypedClass(ast_module.AST):
+
+        """Base class of any statically typed node."""
 
         _type_fields = ()
 

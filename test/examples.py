@@ -202,6 +202,7 @@ FUNCTIONS_LOCAL_VARS = {function.__doc__: _FUNCTIONS_LOCAL_VARS[int(function.__n
 class class_1:
     """very simple class"""
     x = 0
+    x = 1
     def __init__(self):
         pass
     def do_nothing(self) -> None:

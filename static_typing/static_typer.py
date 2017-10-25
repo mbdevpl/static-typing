@@ -1,3 +1,4 @@
+"""Add static type information to a given AST."""
 
 import ast
 import sys
@@ -10,9 +11,17 @@ from .nodes import \
     StaticallyTypedAssign, StaticallyTypedAnnAssign, StaticallyTypedFor, StaticallyTypedWith
 # , StaticallyTypedWhile, StaticallyTypedIf
 
+
 def create_static_typer(ast_module):
+    """Create StaticTyper class based on a given AST module."""
 
     class StaticTyperClass(RecursiveAstTransformer[ast_module]):
+
+        """Add static type information.
+
+        Substitute all nodes that are supposed to be statically typed (i.e. nodes_to_be_typed)
+        with their statically typed versions.
+        """
 
         def __init__(self, *args, **kwargs):
             super().__init__(*args, fields_first=True, **kwargs)

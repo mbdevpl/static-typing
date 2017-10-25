@@ -33,6 +33,7 @@ def create_recursive_ast_visitor(ast_module):
                 self.visit_node(node)
 
         def generic_visit_field(self, node, name: str, value: t.Any):
+            """Visit given field of a given node."""
             _LOG.debug('visiting field %s of %s', name, node)
             if isinstance(value, (str, tuple)):
                 self.visit_field(node, name, value)

@@ -1,13 +1,13 @@
 """Resolve type hints present in a given AST."""
 
 import ast
+import itertools
 import logging
 
 import typed_ast.ast3
 
 from .recursive_ast_transformer import RecursiveAstTransformer
 from .ast_transcriber import AstTranscriber
-import itertools
 
 _LOG = logging.getLogger(__name__)
 
@@ -66,6 +66,7 @@ def create_type_hint_resolver(ast_module, parser_ast_module):
             return eval(expression, self._globals, self._locals)
 
         def visit_node(self, node):
+            """Resolve type hints (if any) in a given node."""
             if getattr(node, 'type_comment', None) is not None:
                 if not isinstance(node.type_comment, str):
                     _LOG.warning('type comment is not a str but %s', type(node.type_comment))

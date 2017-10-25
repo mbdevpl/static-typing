@@ -32,6 +32,7 @@ def create_recursive_ast_transformer(ast_module):
             return node
 
         def generic_visit_field(self, node, name: str, value: t.Any):
+            """Transform given field of a given node."""
             _LOG.debug('visiting field %s of %s', name, node)
             if isinstance(value, (str, tuple)):
                 return self.visit_field(node, name, value)

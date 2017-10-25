@@ -7,15 +7,18 @@ import typed_ast.ast3
 from .statically_typed import StaticallyTyped
 
 
-def create_statically_typed_for(ast_module):
+def create_for(ast_module):
+    """Create statically typed AST For node class based on a given AST module."""
 
     class StaticallyTypedForClass(ast_module.For, StaticallyTyped[ast_module]):
+
+        """Statically typed version of For AST node."""
 
         _type_fields = ('index_vars',)
 
         def __init__(self, *args, **kwargs):
             self._index_vars = {}
-            #self._scope_vars = {}
+            # self._scope_vars = {}
             super().__init__(*args, **kwargs)
 
         def _add_type_info(self):
@@ -27,7 +30,7 @@ def create_statically_typed_for(ast_module):
     return StaticallyTypedForClass
 
 
-StaticallyTypedFor = {ast_module: create_statically_typed_for(ast_module)
+StaticallyTypedFor = {ast_module: create_for(ast_module)
                       for ast_module in (ast, typed_ast.ast3)}
 
 
@@ -56,15 +59,18 @@ StaticallyTypedFor = {ast_module: create_statically_typed_for(ast_module)
 #        pass
 
 
-def create_statically_typed_with(ast_module):
+def create_with(ast_module):
+    """Create statically typed AST With node class based on a given AST module."""
 
     class StaticallyTypedWithClass(ast_module.With, StaticallyTyped[ast_module]):
+
+        """Statically typed version of With AST node."""
 
         _type_fields = ('context_vars',)
 
         def __init__(self, *args, **kwargs):
             self._context_vars = {}
-            #self._scope_vars = {}
+            # self._scope_vars = {}
             super().__init__(*args, **kwargs)
 
         def _add_type_info(self):
@@ -80,5 +86,5 @@ def create_statically_typed_with(ast_module):
     return StaticallyTypedWithClass
 
 
-StaticallyTypedWith = {ast_module: create_statically_typed_with(ast_module)
+StaticallyTypedWith = {ast_module: create_with(ast_module)
                        for ast_module in (ast, typed_ast.ast3)}

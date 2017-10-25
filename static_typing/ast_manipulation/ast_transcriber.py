@@ -23,6 +23,7 @@ def create_ast_transcriber(from_ast_module, to_ast_module):
         """
 
         def visit_node(self, node):
+            """Retype given node, assuming type compatibility."""
             _LOG.info('remapping %s from %s to %s', node, from_ast_module, to_ast_module)
             target_type = getattr(to_ast_module, type(node).__name__)
             _LOG.debug('target type is %s', target_type)

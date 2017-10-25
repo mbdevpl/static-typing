@@ -22,6 +22,13 @@ class Tests(unittest.TestCase):
                 with self.assertRaises(TypeError):
                     ndarray[1, data_type](10, dtype=object)
 
+    def test_numpy_ndarray_identity(self):
+        with self.assertRaises(TypeError):
+            _ = ndarray[1]
+        with self.assertRaises(ValueError):
+            _ = ndarray[2, int, 100, 100]
+        self.assertIs(ndarray[1, int], ndarray[1, int])
+
     def test_numpy_general_ndarray(self):
         for data_type in (bool, int, float):
             for dimensionality in (1, 2, 3):

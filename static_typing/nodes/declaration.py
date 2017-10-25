@@ -12,9 +12,12 @@ from .statically_typed import StaticallyTyped
 _LOG = logging.getLogger(__name__)
 
 
-def create_statically_typed_declaration(ast_module):
+def create_declaration(ast_module):
+    """Create statically typed AST declaration node class based on a given AST module."""
 
     class StaticallyTypedDeclarationClass(StaticallyTyped[ast_module]):
+
+        """Statically typed declaration AST node."""
 
         _type_fields = ('vars',)
 
@@ -45,13 +48,16 @@ def create_statically_typed_declaration(ast_module):
     return StaticallyTypedDeclarationClass
 
 
-StaticallyTypedDeclaration = {ast_module: create_statically_typed_declaration(ast_module)
+StaticallyTypedDeclaration = {ast_module: create_declaration(ast_module)
                               for ast_module in (ast, typed_ast.ast3)}
 
 
-def create_statically_typed_assign(ast_module):
+def create_assign(ast_module):
+    """Create statically typed AST Assign node class based on a given AST module."""
 
     class StaticallyTypedAssignClass(ast_module.Assign, StaticallyTypedDeclaration[ast_module]):
+
+        """Statically typed version of Assign AST node."""
 
         def _add_type_info(self):
             if not getattr(self, 'targets', None):
@@ -61,14 +67,17 @@ def create_statically_typed_assign(ast_module):
     return StaticallyTypedAssignClass
 
 
-StaticallyTypedAssign = {ast_module: create_statically_typed_assign(ast_module)
+StaticallyTypedAssign = {ast_module: create_assign(ast_module)
                          for ast_module in (ast, typed_ast.ast3)}
 
 
-def create_statically_typed_ann_assign(ast_module):
+def create_ann_assign(ast_module):
+    """Create statically typed AST AnnAssign node class based on a given AST module."""
 
     class StaticallyTypedAnnAssignClass(
             ast_module.AnnAssign, StaticallyTypedDeclaration[ast_module]):
+
+        """Statically typed version of AnnAssign AST node."""
 
         def _add_type_info(self):
             if not getattr(self, 'target', None):
@@ -78,7 +87,7 @@ def create_statically_typed_ann_assign(ast_module):
     return StaticallyTypedAnnAssignClass
 
 
-StaticallyTypedAnnAssign = {ast_module: create_statically_typed_ann_assign(ast_module)
+StaticallyTypedAnnAssign = {ast_module: create_ann_assign(ast_module)
                             for ast_module in (
                                 (ast, typed_ast.ast3) if sys.version_info[:2] >= (3, 6)
                                 else (typed_ast.ast3,))}

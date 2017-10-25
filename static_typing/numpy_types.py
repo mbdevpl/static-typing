@@ -4,7 +4,9 @@ import typing as t
 
 import numpy as np
 
+
 def create_typed_numpy_ndarray(dims: int, data_type: t.ClassVar):
+    """Create a statically typed version of numpy.ndarray."""
 
     def typed_ndarray(*args, **kwargs):
         """Create an instance of numpy.ndarray which must conform to declared type constraints."""
@@ -27,14 +29,32 @@ def create_typed_numpy_ndarray(dims: int, data_type: t.ClassVar):
                             .format(dtype, data_type))
         dtype_loc[0][dtype_loc[1]] = data_type
 
-        #print('np.ndarray', args, kwargs)
+        # print('np.ndarray', args, kwargs)
         return np.ndarray(*args, **kwargs)
 
     return typed_ndarray
 
-ndarray = {
-    (dims, data_type): create_typed_numpy_ndarray(dims, data_type)
-    for data_type in [int, np.int8, np.int16, np.int32, np.int64,
-                      float, np.float16, np.float32, np.float64,
-                      bool, np.bool]
-    for dims in [1, 2, 3]}
+
+class typed_numpy_ndarray_factory(dict):
+
+    """Factory of statically typed versions of numpy.ndarray."""
+
+    def __missing__(self, key: t.Union[t.Tuple[int, type], t.Tuple[int, type, t.Sequence[int]]]):
+        if not isinstance(key, tuple):
+            raise TypeError()
+        if 2 <= len(key) <= 3:
+            value = create_typed_numpy_ndarray(*key)
+            self[key] = value
+            return value
+        raise ValueError()
+
+
+ndarray = typed_numpy_ndarray_factory()
+
+'''
+for data_type in (int, np.int8, np.int16, np.int32, np.int64,
+                  float, np.float16, np.float32, np.float64,
+                  bool, np.bool):
+    for dims in (1, 2, 3):
+        ndarray[dims, data_type] = create_typed_numpy_ndarray(dims, data_type)
+'''

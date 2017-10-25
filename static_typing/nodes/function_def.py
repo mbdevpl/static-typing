@@ -17,6 +17,9 @@ _LOG = logging.getLogger(__name__)
 
 
 class FunctionKind(enum.IntEnum):
+
+    """Kind of a statically typed version of FunctionDef AST node."""
+
     Undetermined = 0
     Function = 1
     InstanceMethod = 1 + 2
@@ -26,32 +29,25 @@ class FunctionKind(enum.IntEnum):
     Method = 1 + 2 + 4 + 8
 
 
-def create_statically_typed_function_def(ast_module):
+def create_function_def(ast_module):
+    """Create statically typed AST FunctionDef node class based on a given AST module."""
 
     class StaticallyTypedFunctionDefClass(ast_module.FunctionDef, StaticallyTyped[ast_module]):
+
+        """Statically typed version of FunctionDef AST node."""
 
         _type_fields = 'params', 'local_vars', 'nonlocal_assignments'
 
         def __init__(self, *args, **kwargs):
+            self._kind = FunctionKind.Undetermined
             self._params = {}
             self._returns = ordered_set.OrderedSet()
-            self._kind = FunctionKind.Undetermined
             self._local_vars = {}
             self._nonlocal_assignments = {}
-            #self.scopes = []
+            # self._scopes = []
             super().__init__(*args, **kwargs)
 
-        def _add_var_type_info(self, fld, var_name: str, type_info: t.Any):
-            #, scope: t.Any=None
-            if var_name not in fld:
-                fld[var_name] = ordered_set.OrderedSet()
-            var_type_info = fld[var_name]
-            if type_info is not None:
-                var_type_info.add(type_info)
-
-        def _add_type_info(self):
-            if not getattr(self, 'body', None):
-                return
+        def _add_kind_info(self):
             if len(self.decorator_list) == 0:
                 if len(self.args.args) == 0:
                     self._kind = FunctionKind.Function
@@ -76,6 +72,7 @@ def create_statically_typed_function_def(ast_module):
             if self._kind is FunctionKind.Undetermined:
                 raise NotImplementedError('could not determine function kind')
 
+        def _add_params_type_info(self):
             args, vararg, kwonlyargs, kw_defaults, kwarg, defaults = \
                 self.args.args, self.args.vararg, self.args.kwonlyargs, self.args.kw_defaults, \
                 self.args.kwarg, self.args.defaults
@@ -96,6 +93,24 @@ def create_statically_typed_function_def(ast_module):
                 if getattr(arg, 'type_comment', None) is not None:
                     type_info.add(arg.type_comment)
                 self._params[arg.arg] = type_info
+
+        def _add_var_type_info(self, fld, var_name: str, type_info: t.Any):
+            # , scope: t.Any=None
+            if var_name not in fld:
+                fld[var_name] = ordered_set.OrderedSet()
+            var_type_info = fld[var_name]
+            if type_info is not None:
+                var_type_info.add(type_info)
+
+        def _add_type_info(self):
+            if not getattr(self, 'body', None):
+                return
+
+            self._add_kind_info()
+            self._add_params_type_info()
+
+            if self.returns is not None:
+                self._returns.add(self.returns)
 
             variables = []
             for stmt in self.body:
@@ -120,11 +135,8 @@ def create_statically_typed_function_def(ast_module):
                 else:
                     self._add_var_type_info(self._nonlocal_assignments, k, v)
 
-            if self.returns is not None:
-                self._returns.add(self.returns)
-
     return StaticallyTypedFunctionDefClass
 
 
-StaticallyTypedFunctionDef = {ast_module: create_statically_typed_function_def(ast_module)
+StaticallyTypedFunctionDef = {ast_module: create_function_def(ast_module)
                               for ast_module in (ast, typed_ast.ast3)}

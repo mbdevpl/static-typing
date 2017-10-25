@@ -12,9 +12,12 @@ from .function_def import FunctionKind, StaticallyTypedFunctionDef
 from .declaration import StaticallyTypedAssign, StaticallyTypedAnnAssign
 
 
-def create_statically_typed_class_def(ast_module):
+def create_class_def(ast_module):
+    """Create statically typed ClassDef AST node class based on a given AST module."""
 
     class StaticallyTypedClassDefClass(ast_module.ClassDef, StaticallyTyped[ast_module]):
+
+        """Statically typed version of ClassDef AST node."""
 
         _type_fields = 'class_fields', 'instance_fields', 'methods', 'static_methods', \
             'class_methods', 'instance_methods'
@@ -34,7 +37,22 @@ def create_statically_typed_class_def(ast_module):
             self._instance_methods = {}
             super().__init__(*args, **kwargs)
 
-        def _add_var(self, var_place: str, var_name: str, type_info: t.Any, scope: t.Any=None):
+        def _add_method(self, method: StaticallyTypedFunctionDef[ast_module]):
+            self._methods[method.name] = method
+            getattr(self, self.kind_mapping[method._kind])[method.name] = method
+            if method._kind is not FunctionKind.Constructor:
+                return
+            for k, v_set in method._nonlocal_assignments.items():
+                if isinstance(k, ast_module.Attribute) \
+                        and isinstance(k.value, ast_module.Name) \
+                        and k.value.id == 'self':
+                    if not v_set:
+                        v_set = {None}
+                    for v in v_set:
+                        self._add_var('_instance_fields', k.attr, v)
+
+        def _add_var(self, var_place: str, var_name: str, type_info: t.Any):
+            # , scope: t.Any = None
             vars_ = getattr(self, var_place)
             if var_name not in vars_:
                 vars_[var_name] = ordered_set.OrderedSet()
@@ -48,16 +66,7 @@ def create_statically_typed_class_def(ast_module):
             for node in self.body:
                 if isinstance(node, ast_module.FunctionDef):
                     assert isinstance(node, StaticallyTypedFunctionDef[ast_module]), type(node)
-                    self._methods[node.name] = node
-                    getattr(self, self.kind_mapping[node._kind])[node.name] = node
-                    if node._kind is FunctionKind.Constructor:
-                        for k, v_set in node._nonlocal_assignments.items():
-                            if isinstance(k, ast_module.Attribute) \
-                                    and isinstance(k.value, ast_module.Name) \
-                                    and k.value.id == 'self':
-                                self._add_var('_instance_fields', k.attr, None)
-                                for v in v_set:
-                                    self._add_var('_instance_fields', k.attr, v)
+                    self._add_method(node)
                 elif isinstance(node, ast_module.Assign):
                     assert isinstance(node, StaticallyTypedAssign[ast_module]), type(node)
                     for k, v in node._vars.items():
@@ -73,5 +82,5 @@ def create_statically_typed_class_def(ast_module):
     return StaticallyTypedClassDefClass
 
 
-StaticallyTypedClassDef = {ast_module: create_statically_typed_class_def(ast_module)
+StaticallyTypedClassDef = {ast_module: create_class_def(ast_module)
                            for ast_module in (ast, typed_ast.ast3)}
