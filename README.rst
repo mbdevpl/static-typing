@@ -39,7 +39,7 @@ Be advised that this is an ongoing work, and current implementation is subject t
 how to use
 ----------
 
-You can use the ``static_typing`` module to parse the code directly:
+You can use the ``static_typing`` module to parse the code directly using ``parse()`` function:
 
 .. code:: python
 
@@ -52,7 +52,7 @@ You can use the ``static_typing`` module to parse the code directly:
     my_fun = module._functions['my_fun']
     assert MyClass in my_fun._params['obj']
 
-Or, you can augment existing AST:
+Or, you can augment existing AST using ``augment()`` function:
 
 .. code:: python
 
@@ -71,9 +71,13 @@ For more examples see `<examples.ipynb>`_ notebook.
 how it's implemented
 --------------------
 
-First of all a type hint resolver has been implemented. It uses ``globals()`` and ``locals()``
+First of all a type hint resolver has been implemented. It uses provided Python symbol tables
 to resolve type hints into actual type objects using introspection, and stores the resolved type
 hints directly in the AST. Thus, Python type information becomes static.
+
+By default, the resolver uses only built-in symbols when called directly or through ``augment()``.
+However, when called through ``parse()`` it uses ``globals()`` and ``locals()`` of the caller
+by default.
 
 Secondly, new fields have been added to several AST nodes, currently these are: ``Module``,
 ``FunctionDef``, ``ClassDef``, ``Assign``, ``AnnAssign``, ``For`` and ``With``. These new fields
@@ -106,7 +110,7 @@ For ``For``:
 
 *   index variables and their types
 
-For ``With``
+For ``With``:
 
 *   context variables and their types
 
