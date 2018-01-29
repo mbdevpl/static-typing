@@ -1,5 +1,6 @@
 numpy
 ordered-set
 typed-ast
+typed-astunparse
 typing >= 3.5; python_version < '3.5'
 version-query
