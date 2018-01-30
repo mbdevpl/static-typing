@@ -31,9 +31,9 @@ class Tests(unittest.TestCase):
                     tree = ast_module.parse(example)
                     if self._should_fail(description, globals_, locals_):
                         with self.assertRaises(NameError):
-                            augment(tree, globals_, locals_, ast_module)
+                            augment(tree, True, globals_, locals_, ast_module)
                         continue
-                    tree = augment(tree, globals_, locals_, ast_module)
+                    tree = augment(tree, True, globals_, locals_, ast_module)
                     # TODO: validate tree
 
     @unittest.skipIf(sys.version_info[:2] < (3, 6), 'requires Python >= 3.6')
@@ -45,9 +45,9 @@ class Tests(unittest.TestCase):
                     tree = ast_module.parse(example)
                     if self._should_fail(description, globals_, locals_):
                         with self.assertRaises(NameError):
-                            augment(tree, globals_, locals_, ast_module)
+                            augment(tree, True, globals_, locals_, ast_module)
                         continue
-                    tree = augment(tree, globals_, locals_, ast_module)
+                    tree = augment(tree, True, globals_, locals_, ast_module)
                     # TODO: validate tree
 
     @unittest.skipIf(sys.version_info[:2] < (3, 6), 'requires Python >= 3.6')
@@ -58,9 +58,9 @@ class Tests(unittest.TestCase):
                 with self.subTest(ast_module=ast_module, msg=description, example=example):
                     if self._should_fail(description, globals_, locals_):
                         with self.assertRaises(NameError):
-                            parse(example, globals_, locals_, ast_module)
+                            parse(example, True, globals_, locals_, ast_module)
                         continue
-                    tree = parse(example, globals_, locals_, ast_module)
+                    tree = parse(example, True, globals_, locals_, ast_module)
                     # TODO: validate tree
 
     @unittest.skipIf(sys.version_info[:2] < (3, 6), 'requires Python >= 3.6')
@@ -71,9 +71,9 @@ class Tests(unittest.TestCase):
                 with self.subTest(ast_module=ast_module, msg=description, example=example):
                     if self._should_fail(description, globals_, locals_):
                         with self.assertRaises(NameError):
-                            parse(example, globals_, locals_, ast_module)
+                            parse(example, True, globals_, locals_, ast_module)
                         continue
-                    tree = parse(example, globals_, locals_, ast_module)
+                    tree = parse(example, True, globals_, locals_, ast_module)
                     # TODO: validate tree
 
     def test_parse_in_caller_context(self):
