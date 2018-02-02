@@ -17,86 +17,86 @@ AST_MODULES = (ast, typed_ast.ast3)
 def function_a1():
     """function with built-in types"""
     a = 0
-    b = 0.0 # type: float
+    b = 0.0  # type: float
     c = 'spam'
-    c = 'ham' # type: str
-    d = 0 # type: int
-    e = 0.0 # type: float
+    c = 'ham'  # type: str
+    d = 0  # type: int
+    e = 0.0  # type: float
     f = 0
-    f = 0 # type: int
+    f = 0  # type: int
     g, h = 4, 2.0
-    i, j = 4, 2.0 # type: int, float
-    k, l = 4, 2.0 # type: (int, float)
+    i, j = 4, 2.0  # type: int, float
+    k, l = 4, 2.0  # type: (int, float)
     m, (n, o) = 4, (2.0, 'eggs')
-    p, (r, s) = 4, (2.0, 'eggs') # type: int, (float, str)
-    t__, (u, v) = 4, (2.0, 'eggs') # type: (int, (float, str))
+    p, (r, s) = 4, (2.0, 'eggs')  # type: int, (float, str)
+    t__, (u, v) = 4, (2.0, 'eggs')  # type: (int, (float, str))
     w = w1 = w2 = 'bacon'
-    x = x1 = x2 = 'bacon' # type: str
-    for y in [0, 1, 2]: # type: int
-        z = object() # type: object
+    x = x1 = x2 = 'bacon'  # type: str
+    for y in [0, 1, 2]:  # type: int
+        z = object()  # type: object
 
 
 def function_a2():
     """function with external types"""
-    a = [0, 1] # type: t.List[int]
-    b = [0, 1] # type: t.List[int]
-    c = None # type: st.ndarray[2, float]
-    d = None # type: st.ndarray[2, float]
-    e = 0.0 # type: np.double
+    a = [0, 1]  # type: t.List[int]
+    b = [0, 1]  # type: t.List[int]
+    c = None  # type: st.ndarray[2, float]
+    d = None  # type: st.ndarray[2, float]
+    e = 0.0  # type: np.double
 
 
 def function_3():
     """function with complex type annotations"""
-    spam, ham, eggs = '', 0, 0.0 # type: str , int , float
-    spam, ham, eggs = '', 0, 0.0 # type: ( str , int , float )
-    spam, ham, eggs = '', 0, 0.0 # type: ( ( str , int , float ) )
-    spam, (ham, eggs) = '', (0, 0.0) # type: str , ( int , float )
-    spam, (ham, eggs) = '', (0, 0.0) # type: str , ( int , float )
-    (spam, ham), eggs = ('', 0), 0.0 # type: ( str , int ) , float
+    spam, ham, eggs = '', 0, 0.0  # type: str , int , float
+    spam, ham, eggs = '', 0, 0.0  # type: ( str , int , float )
+    spam, ham, eggs = '', 0, 0.0  # type: ( ( str , int , float ) )
+    spam, (ham, eggs) = '', (0, 0.0)  # type: str , ( int , float )
+    spam, (ham, eggs) = '', (0, 0.0)  # type: str , ( int , float )
+    (spam, ham), eggs = ('', 0), 0.0  # type: ( str , int ) , float
 
 
 def function_a4():
     """function with very complex type annotations, ver. 1"""
     spam, ((ham, bacon), eggs), sausage, beans = \
-        '', ((0, 0.0), True), None, b'' # type: str, ((int, float), bool), object, bytes
+        '', ((0, 0.0), True), None, b''  # type: str, ((int, float), bool), object, bytes
 
 
 def function_b4():
     """function with very complex type annotations, ver. 2"""
     spam, (ham, (bacon, eggs)), sausage, beans = \
-        '', (0, (0.0, True)), None, b'' # type: str, (int, (float, bool)), object, bytes
+        '', (0, (0.0, True)), None, b''  # type: str, (int, (float, bool)), object, bytes
 
 
 def function_c4():
     """function with very complex type annotations, ver. 3"""
     spam, (ham, (bacon, eggs), sausage), beans = \
-        '', (0, (0.0, True), None), b'' # type: str, (int, (float, bool), object), bytes
+        '', (0, (0.0, True), None), b''  # type: str, (int, (float, bool), object), bytes
 
 
 def function_a5():
     """function with very complex type annotations, ver. 4"""
     spam, (ham, eggs), (sausage, bacon) = \
-        '', (0, 0.0), (True, None) # type: str, (int, float), (bool, object)
+        '', (0, 0.0), (True, None)  # type: str, (int, float), (bool, object)
 
 
 def function_b5():
     """function with very complex type annotations, ver. 5"""
     (spam, ham), eggs, (sausage, bacon) = \
-        ('', 0), 0.0, (True, None) # type: (str, int), float, (bool, object)
+        ('', 0), 0.0, (True, None)  # type: (str, int), float, (bool, object)
 
 
 def function_a6(eggs: bool = True):
     """function with conflicting types in branches"""
-    spam = eggs # type: bool
+    spam = eggs  # type: bool
     if spam:
-        ham = '' # type: str
+        ham = ''  # type: str
     else:
-        ham = 0 # type: int
+        ham = 0  # type: int
 
 
 def function_7():
     """function with type-annotated value swap"""
-    spam, ham = ham, spam = None, None # type: int, str
+    spam, ham = ham, spam = None, None  # type: int, str
 
 
 def function_a8(spam: int = 0, ham: str = '', eggs: float = 0.0):
@@ -104,9 +104,9 @@ def function_a8(spam: int = 0, ham: str = '', eggs: float = 0.0):
     spam, ham, eggs = None, None, None
 
 
-def function_b8(spam=0, # type: int
-                ham='', # type: str
-                eggs=0.0): # type: float
+def function_b8(spam=0,  # type: int
+                ham='',  # type: str
+                eggs=0.0):  # type: float
     """function with args with type comments"""
     spam, ham, eggs = None, None, None
 
@@ -117,6 +117,7 @@ def function_9():
         pass
     with contextlib.redirect_stdout(sys.stderr) as spam:  # type: object
         pass
+
 
 FUNCTIONS = (function_a1, function_a2, function_3, function_a4, function_b4, function_c4,
              function_a5, function_b5, function_a6, function_7, function_a8, function_b8,
@@ -203,13 +204,17 @@ class class_1:
     """very simple class"""
     x = 0
     x = 1
+
     def __init__(self):
         pass
+
     def do_nothing(self) -> None:
         pass
+
     @classmethod
     def do_something(cls) -> bool:
         return True
+
     @staticmethod
     def make_noise() -> str:
         return 'noise'
@@ -218,27 +223,27 @@ class class_1:
 class class_a2:
     """class with instance fields"""
     def __init__(self):
-        self.x = {'spam': 'spam spam spam'} # type: dict
-        self.y = 0.1 # type: float
-        self.z, self.t = 0.1, 0 # type: float, int
-        self.x['lovely'] = 'spam' # type: str
+        self.x = {'spam': 'spam spam spam'}  # type: dict
+        self.y = 0.1  # type: float
+        self.z, self.t = 0.1, 0  # type: float, int
+        self.x['lovely'] = 'spam'  # type: str
 
 
 class class_a3:
     """class with instance fields using external types"""
     def __init__(self):
-        self.x = 0 # type: np.float16
-        self.y = 0.1 # type: np.float32
-        self.z, self.t = 0.1, 0 # type: float, int
+        self.x = 0  # type: np.float16
+        self.y = 0.1  # type: np.float32
+        self.z, self.t = 0.1, 0  # type: float, int
 
 
 class class_a4:
     """class with class fields"""
     spam = {}
-    ham = 1 # type: int
-    eggs = True # type: bool
-    spam['lovely'] = 'spam' # type: str
-    spam['not lovely'] = 'ham' # type: str
+    ham = 1  # type: int
+    eggs = True  # type: bool
+    spam['lovely'] = 'spam'  # type: str
+    spam['not lovely'] = 'ham'  # type: str
 
 
 CLASSES = (class_1, class_a2, class_a3, class_a4)
@@ -270,7 +275,8 @@ SOURCE_CODES = {k: v for k, v in itertools.chain(
 TYPE_HINTS = {ast_module: {
     'int': ('int', ast_module.Name('int', ast_module.Load()), int),
     'str': ('str', ast_module.Name('str', ast_module.Load()), str),
-    'dict as AST': (ast_module.Name('dict', ast_module.Load()), ast_module.Name('dict', ast_module.Load()), dict),
+    'dict as AST': (ast_module.Name('dict', ast_module.Load()),
+                    ast_module.Name('dict', ast_module.Load()), dict),
     'hint with external type': ('np.float', ast_module.Attribute(
         ast_module.Name('np', ast_module.Load()), 'float', ast_module.Load()), np.float),
     'unresolvable hint': (int, int, int),
