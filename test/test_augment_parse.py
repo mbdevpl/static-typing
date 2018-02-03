@@ -8,7 +8,7 @@ import unittest
 from static_typing.augment import augment
 from static_typing.parse import parse
 from .examples import \
-    AST_MODULES, FUNCTIONS_SOURCE_CODES, CLASSES_SOURCE_CODES, GLOBALS_EXTERNAL, \
+    AST_MODULES, FUNCTIONS_SOURCE_CODES, CLASSES_SOURCE_CODES, SOURCE_CODES, GLOBALS_EXTERNAL, \
     GLOBALS_EXAMPLES, LOCALS_EXTERNAL, LOCALS_EXAMPLES
 
 _LOG = logging.getLogger(__name__)
@@ -75,6 +75,29 @@ class Tests(unittest.TestCase):
                         continue
                     tree = parse(example, True, globals_, locals_, ast_module)
                     # TODO: validate tree
+
+    def test_without_eval(self):
+        for ast_module, globals_, locals_ in itertools.product(
+                AST_MODULES, GLOBALS_EXAMPLES, LOCALS_EXAMPLES):
+            for description, example in SOURCE_CODES.items():
+                with self.subTest(ast_module=ast_module, msg=description, example=example):
+                    raw_tree = ast_module.parse(example)
+                    # '''
+                    if self._should_fail(description, globals_, locals_):
+                        # with self.assertRaises(NameError):
+                        try:
+                            parse(example, False, globals_, locals_, ast_module)
+                            augment(raw_tree, False, globals_, locals_, ast_module)
+                        except TypeError:
+                            # raise
+                            continue
+                    # '''
+                    try:
+                        tree = parse(example, False, globals_, locals_, ast_module)
+                        # TODO: validate tree
+                        tree = augment(raw_tree, False, globals_, locals_, ast_module)
+                    except TypeError:
+                        pass
 
     def test_parse_in_caller_context(self):
         example = 'my_object = MyClass() # type: MyClass'
