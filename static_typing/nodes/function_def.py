@@ -80,7 +80,8 @@ def create_function_def(ast_module):
             if vararg or kwonlyargs or kwarg:
                 raise NotImplementedError('only simple function definitions are supported')
             if kw_defaults or defaults:
-                _LOG.warning('ignoring default parameter values')
+                _LOG.warning('ignoring default parameter values in %s: %s and %s',
+                             self.name, kw_defaults, defaults)
             for i, arg in enumerate(args):
                 if i == 0:
                     if self._kind in (FunctionKind.Constructor, FunctionKind.InstanceMethod) \
@@ -111,7 +112,7 @@ def create_function_def(ast_module):
             self._add_params_type_info()
 
             if self.returns is not None:
-                self._returns.add(self.returns)
+                self._returns.add(self.resolved_returns)
 
             variables = []
             for stmt in self.body:
