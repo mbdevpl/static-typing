@@ -82,22 +82,13 @@ class Tests(unittest.TestCase):
             for description, example in SOURCE_CODES.items():
                 with self.subTest(ast_module=ast_module, msg=description, example=example):
                     raw_tree = ast_module.parse(example)
-                    # '''
-                    if self._should_fail(description, globals_, locals_):
-                        # with self.assertRaises(NameError):
-                        try:
-                            parse(example, False, globals_, locals_, ast_module)
-                            augment(raw_tree, False, globals_, locals_, ast_module)
-                        except TypeError:
-                            # raise
-                            continue
-                    # '''
                     try:
-                        tree = parse(example, False, globals_, locals_, ast_module)
-                        # TODO: validate tree
-                        tree = augment(raw_tree, False, globals_, locals_, ast_module)
+                        tree1 = parse(example, False, globals_, locals_, ast_module)
+                        tree2 = augment(raw_tree, False, globals_, locals_, ast_module)
                     except TypeError:
-                        pass
+                        continue
+                    # TODO: validate tree1
+                    # TODO: validate tree2
 
     def test_parse_in_caller_context(self):
         example = 'my_object = MyClass() # type: MyClass'

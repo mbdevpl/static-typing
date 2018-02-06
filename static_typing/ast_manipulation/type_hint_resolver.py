@@ -69,7 +69,10 @@ def create_type_hint_resolver(ast_module, parser_ast_module):
             """Resolve type hints (if any) in a given node."""
             if getattr(node, 'type_comment', None) is not None:
                 if not isinstance(node.type_comment, str):
-                    _LOG.warning('type comment is not a str but %s', type(node.type_comment))
+                    level = logging.DEBUG if isinstance(node.type_comment,
+                                                        (ast_module.AST, parser_ast_module.AST)) \
+                        else logging.WARNING
+                    _LOG.log(level, 'type comment is not a str but %s', type(node.type_comment))
                 _LOG.debug('resolving type comment "%s" of %s', node.type_comment, node)
                 node.type_comment = self.resolve_type_hint(node.type_comment)
                 _LOG.info('resolved type comment of %s', node)

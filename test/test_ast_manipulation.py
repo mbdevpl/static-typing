@@ -25,40 +25,44 @@ class Tests(unittest.TestCase):
         for ast_module, fields_first, (description, example) in itertools.product(
                 AST_MODULES, (False, True), SOURCE_CODES.items()):
             with self.subTest(ast_module=ast_module, msg=description, example=example):
-                class visitor_class(RecursiveAstVisitor[ast_module]):
+                class VisitorClass(RecursiveAstVisitor[ast_module]):
                     visited_node = False
                     visited_field = False
+
                     def visit_node(self, node):
                         type(self).visited_node = True
                         super().visit_node(node)
+
                     def visit_field(self, node, name, value):
                         type(self).visited_field = True
                         super().visit_field(node, name, value)
-                visitor = visitor_class(fields_first)
+                visitor = VisitorClass(fields_first)
                 tree = ast_module.parse(example)
                 visitor.visit(tree)
-                self.assertTrue(visitor_class.visited_node)
-                self.assertTrue(visitor_class.visited_field)
+                self.assertTrue(VisitorClass.visited_node)
+                self.assertTrue(VisitorClass.visited_field)
 
     def test_recursive_ast_transformer(self):
         for ast_module, fields_first, (description, example) in itertools.product(
                 AST_MODULES, (False, True), SOURCE_CODES.items()):
             with self.subTest(ast_module=ast_module, msg=description, example=example):
-                class transformer_class(RecursiveAstTransformer[ast_module]):
+                class TransformerClass(RecursiveAstTransformer[ast_module]):
                     transformed_node = False
                     transformed_field = False
+
                     def visit_node(self, node):
                         type(self).transformed_node = True
                         node.lineno = -1
                         return super().visit_node(node)
+
                     def visit_field(self, node, name, value):
                         type(self).transformed_field = True
                         return super().visit_field(node, name, value)
-                transformer = transformer_class(fields_first)
+                transformer = TransformerClass(fields_first)
                 tree = ast_module.parse(example)
                 tree = transformer.visit(tree)
-                self.assertTrue(transformer_class.transformed_node)
-                self.assertTrue(transformer_class.transformed_field)
+                self.assertTrue(TransformerClass.transformed_node)
+                self.assertTrue(TransformerClass.transformed_field)
                 original_tree = ast_module.parse(example)
                 self.assertEqual(ast_module.dump(tree), ast_module.dump(original_tree))
                 self.assertEqual(
@@ -78,14 +82,16 @@ class Tests(unittest.TestCase):
                     transcriber = AstTranscriber[from_ast_module, to_ast_module]()
                     tree = from_ast_module.parse(example)
                     tree = transcriber.visit(tree)
-                    class visitor_class(RecursiveAstVisitor[to_ast_module]):
+
+                    class VisitorClass(RecursiveAstVisitor[to_ast_module]):
                         testcase = self
+
                         def visit_node(self, node):
                             type(self).testcase.assertIsInstance(node, to_ast_module.AST)
-                    visitor = visitor_class()
+                    visitor = VisitorClass()
                     visitor.visit(tree)
 
-    def test_type_hint_resolver(self):
+    def test_type_hint_resolver_resolve(self):
         for ast_module, parser_ast_module, eval_, globals_, locals_, preresolve \
                 in itertools.product(AST_MODULES, AST_MODULES, (False, True), GLOBALS_EXAMPLES,
                                      LOCALS_EXAMPLES, (False, True)):
@@ -96,7 +102,8 @@ class Tests(unittest.TestCase):
                 continue
             resolver = TypeHintResolver[ast_module, parser_ast_module](
                 eval_, globals_, locals_)
-            for description, (hint, parsed_hint, static_type) in TYPE_HINTS[parser_ast_module].items():
+            for description, (hint, parsed_hint, static_type) in \
+                    TYPE_HINTS[parser_ast_module].items():
                 with self.subTest(ast_module=ast_module, parser_ast_module=parser_ast_module,
                                   eval=eval_, globals_is_none=globals_ is None,
                                   locals_is_none=locals_ is None):
@@ -118,6 +125,18 @@ class Tests(unittest.TestCase):
                         self.assertIsInstance(resolved_hint, parser_ast_module.AST)
                         self.assertEqual(parser_ast_module.dump(resolved_hint),
                                          parser_ast_module.dump(parsed_hint))
+
+    def test_type_hint_resolver_visit(self):
+        for ast_module, parser_ast_module, eval_, globals_, locals_, preresolve \
+                in itertools.product(AST_MODULES, AST_MODULES, (False, True), GLOBALS_EXAMPLES,
+                                     LOCALS_EXAMPLES, (False, True)):
+            preresolver = TypeHintResolver[ast_module, parser_ast_module](False, globals_, locals_)
+            if parser_ast_module is not ast and eval_:
+                with self.assertRaises(NotImplementedError):
+                    TypeHintResolver[ast_module, parser_ast_module](eval_, globals_, locals_)
+                continue
+            resolver = TypeHintResolver[ast_module, parser_ast_module](
+                eval_, globals_, locals_)
             for description, example in SOURCE_CODES.items():
                 with self.subTest(ast_module=ast_module, parser_ast_module=parser_ast_module,
                                   eval=eval_, globals_is_none=globals_ is None,
@@ -141,7 +160,8 @@ class Tests(unittest.TestCase):
                             if eval_:
                                 self.assertIsInstance(hint, (type, tuple, collections.abc.Callable))
                                 if not isinstance(hint, type):
-                                    _LOG.warning('resolved hint is instance of %s: %s', type(hint), hint)
+                                    _LOG.warning('resolved hint is instance of %s: %s',
+                                                 type(hint), hint)
                                     # TODO: validate non-flat resolved hints
                             else:
                                 self.assertIsInstance(hint, parser_ast_module.AST)
