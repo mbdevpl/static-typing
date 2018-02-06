@@ -152,9 +152,10 @@ class Tests(unittest.TestCase):
                         continue
                     tree = resolver.visit(tree)
                     for node in ast_module.walk(tree):
-                        annotation = getattr(node, 'annotation', None)
-                        type_comment = getattr(node, 'type_comment', None)
-                        for hint in (annotation, type_comment):
+                        type_comment = getattr(node, 'resolved_type_comment', None)
+                        annotation = getattr(node, 'resolved_annotation', None)
+                        returns = getattr(node, 'resolved_returns', None)
+                        for hint in (type_comment, annotation, returns):
                             if hint is None:
                                 continue
                             if eval_:

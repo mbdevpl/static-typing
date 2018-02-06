@@ -59,10 +59,14 @@ def create_assign(ast_module):
 
         """Statically typed version of Assign AST node."""
 
+        def __init__(self, *args, resolved_type_comment=None, **kwargs):
+            self.resolved_type_comment = resolved_type_comment
+            super().__init__(*args, **kwargs)
+
         def _add_type_info(self):
             if not getattr(self, 'targets', None):
                 return
-            self._add_declarations(self.targets, getattr(self, 'type_comment', None))
+            self._add_declarations(self.targets, self.resolved_type_comment)
 
     return StaticallyTypedAssignClass
 
@@ -79,10 +83,14 @@ def create_ann_assign(ast_module):
 
         """Statically typed version of AnnAssign AST node."""
 
+        def __init__(self, *args, resolved_annotation=None, **kwargs):
+            self.resolved_annotation = resolved_annotation
+            super().__init__(*args, **kwargs)
+
         def _add_type_info(self):
             if not getattr(self, 'target', None):
                 return
-            self._add_declaration(self.target, self.annotation)
+            self._add_declaration(self.target, self.resolved_annotation)
 
     return StaticallyTypedAnnAssignClass
 

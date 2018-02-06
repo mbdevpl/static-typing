@@ -38,7 +38,8 @@ def create_function_def(ast_module):
 
         _type_fields = 'params', 'local_vars', 'nonlocal_assignments'
 
-        def __init__(self, *args, **kwargs):
+        def __init__(self, *args, resolved_returns=None, **kwargs):
+            self.resolved_returns = resolved_returns
             self._kind = FunctionKind.Undetermined
             self._params = {}
             self._returns = ordered_set.OrderedSet()
@@ -88,10 +89,10 @@ def create_function_def(ast_module):
                     if self._kind is FunctionKind.ClassMethod and arg.arg == 'cls':
                         continue
                 type_info = ordered_set.OrderedSet()
-                if arg.annotation is not None:
-                    type_info.add(arg.annotation)
-                if getattr(arg, 'type_comment', None) is not None:
-                    type_info.add(arg.type_comment)
+                if getattr(arg, 'resolved_annotation', None) is not None:
+                    type_info.add(arg.resolved_annotation)
+                if getattr(arg, 'resolved_type_comment', None) is not None:
+                    type_info.add(arg.resolved_type_comment)
                 self._params[arg.arg] = type_info
 
         def _add_var_type_info(self, fld, var_name: str, type_info: t.Any):

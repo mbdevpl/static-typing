@@ -24,7 +24,7 @@ def create_for(ast_module):
         def _add_type_info(self):
             if not getattr(self, 'body', None):
                 return
-            self._index_vars[self.target] = getattr(self, 'type_comment', None)
+            self._index_vars[self.target] = getattr(self, 'resolved_type_comment', None)
             # TODO: multiple index variables
 
     return StaticallyTypedForClass
@@ -79,7 +79,7 @@ def create_with(ast_module):
             for item in self.items:
                 if isinstance(item.optional_vars, ast_module.Name):
                     name = item.optional_vars
-                    self._context_vars[name] = getattr(self, 'type_comment', None)
+                    self._context_vars[name] = getattr(self, 'resolved_type_comment', None)
                 # TODO: proper type hint decomposition in case of many context managers
                 # TODO: multiple context variables from one context manager
 

@@ -14,9 +14,14 @@ def create_statically_typed(ast_module):
 
         _type_fields = ()
 
+        _resolved_fields = ('resolved_type_comment', 'resolved_annotation', 'resolved_returns')
+
         @classmethod
         def from_other(cls, node: ast_module.AST):
             node_fields = {k: v for k, v in ast_module.iter_fields(node)}
+            for resolved_field in cls._resolved_fields:
+                if hasattr(node, resolved_field):
+                    node_fields[resolved_field] = getattr(node, resolved_field)
             return cls(**node_fields)
 
         def __init__(self, *args, **kwargs):

@@ -1,6 +1,7 @@
 """Unit tests for nodes module."""
 
 import ast
+import collections
 import itertools
 import logging
 import sys
@@ -8,6 +9,7 @@ import unittest
 
 import ordered_set
 import typed_ast.ast3
+import typed_astunparse
 
 from static_typing.ast_manipulation.type_hint_resolver import TypeHintResolver
 from static_typing.nodes.statically_typed import StaticallyTyped
@@ -32,6 +34,16 @@ class Tests(unittest.TestCase):
         for ast_module in AST_MODULES:
             with self.assertRaises(NotImplementedError):
                 StaticallyTyped[ast_module]()
+
+    def test_from_other(self):
+        for ast_module in AST_MODULES:
+            function_def = ast_module.FunctionDef(
+                name='my_function', args=ast_module.arguments(
+                    args=[], vararg=None, kwonlyargs=[], kwarg=None, defaults=[], kw_defaults=[]),
+                body=[ast_module.Pass()], decorator_list=[], returns=ast_module.NameConstant(None))
+            function_def.resolved_returns = None
+            static_function_def = StaticallyTypedFunctionDef[ast_module].from_other(function_def)
+            self.assertTrue(hasattr(static_function_def, 'resolved_returns'))
 
     @unittest.skipIf(sys.version_info[:2] < (3, 6), 'requires Python >= 3.6')
     def test_empty(self):
@@ -117,6 +129,32 @@ class Tests(unittest.TestCase):
         for ast_module in AST_MODULES:
             resolver = TypeHintResolver[ast_module, ast](globals_=GLOBALS_EXTERNAL)
             typer = StaticTyper[ast_module]()
+            for example, assigned_vars in {
+                    'a = 0\n': {'a': None},
+                    'a = 0  # type: int\n': {'a': int},
+                    # 'value: float = "oh my"\n': {'value': float}
+                    }.items():
+                tree = ast_module.parse(example, mode='single')
+                node = tree.body[0]
+                node = resolver.visit(node)
+                with self.subTest(ast_module=ast_module, example=example,
+                                  assigned_vars=assigned_vars, node=ast_module.dump(node)):
+                    ann_assign = typer.visit(node)
+                    self.assertIsInstance(ann_assign, StaticallyTypedAssign[ast_module])
+                    self.assertIsInstance(ann_assign._vars, dict)
+                    self.assertEqual(len(ann_assign._vars), len(assigned_vars))
+                    ann_assign_vars = {typed_astunparse.unparse(name).rstrip(): type_
+                                       for name, type_ in ann_assign._vars.items()}
+                    if ast_module is ast:
+                        self.assertSetEqual(set(ann_assign_vars.keys()), set(assigned_vars.keys()))
+                    else:
+                        self.assertDictEqual(ann_assign_vars, assigned_vars)
+                    _LOG.info('%s', ann_assign)
+
+    def test_assign_in_functions(self):
+        for ast_module in AST_MODULES:
+            resolver = TypeHintResolver[ast_module, ast](globals_=GLOBALS_EXTERNAL)
+            typer = StaticTyper[ast_module]()
             for description, example in FUNCTIONS_SOURCE_CODES.items():
                 tree = ast_module.parse(example)
                 for node in ast_module.walk(tree):
@@ -142,6 +180,29 @@ class Tests(unittest.TestCase):
 
     @unittest.skipIf(sys.version_info[:2] < (3, 6), 'requires Python >= 3.6')
     def test_ann_assign(self):
+        for ast_module in AST_MODULES:
+            resolver = TypeHintResolver[ast_module, ast](globals_=GLOBALS_EXTERNAL)
+            typer = StaticTyper[ast_module]()
+            for example, assigned_vars in {
+                    'a: int\n': {'a': int},
+                    'a: int = 0\n': {'a': int},
+                    'value: float = "oh my"\n': {'value': float}}.items():
+                tree = ast_module.parse(example, mode='single')
+                node = tree.body[0]
+                node = resolver.visit(node)
+                with self.subTest(ast_module=ast_module, example=example,
+                                  assigned_vars=assigned_vars, node=ast_module.dump(node)):
+                    ann_assign = typer.visit(node)
+                    self.assertIsInstance(ann_assign, StaticallyTypedAnnAssign[ast_module])
+                    self.assertIsInstance(ann_assign._vars, dict)
+                    self.assertEqual(len(ann_assign._vars), len(assigned_vars))
+                    ann_assign_vars = {typed_astunparse.unparse(name).rstrip(): type_
+                                       for name, type_ in ann_assign._vars.items()}
+                    self.assertDictEqual(ann_assign_vars, assigned_vars)
+                    _LOG.info('%s', ann_assign)
+
+    @unittest.skipIf(sys.version_info[:2] < (3, 6), 'requires Python >= 3.6')
+    def test_ann_assign_in_functions(self):
         for ast_module in AST_MODULES:
             resolver = TypeHintResolver[ast_module, ast](globals_=GLOBALS_EXTERNAL)
             typer = StaticTyper[ast_module]()

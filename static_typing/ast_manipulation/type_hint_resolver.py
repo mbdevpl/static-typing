@@ -74,15 +74,15 @@ def create_type_hint_resolver(ast_module, parser_ast_module):
                         else logging.WARNING
                     _LOG.log(level, 'type comment is not a str but %s', type(node.type_comment))
                 _LOG.debug('resolving type comment "%s" of %s', node.type_comment, node)
-                node.type_comment = self.resolve_type_hint(node.type_comment)
+                node.resolved_type_comment = self.resolve_type_hint(node.type_comment)
                 _LOG.info('resolved type comment of %s', node)
             if getattr(node, 'annotation', None) is not None:
                 _LOG.debug('resolving type annotation of %s', node)
-                node.annotation = self.resolve_type_hint(node.annotation)
+                node.resolved_annotation = self.resolve_type_hint(node.annotation)
                 _LOG.info('resolved type annotation of %s', node)
             if getattr(node, 'returns', None) is not None:
                 _LOG.debug('resolving return type annotation of %s', node)
-                node.returns = self.resolve_type_hint(node.returns)
+                node.resolved_returns = self.resolve_type_hint(node.returns)
                 _LOG.info('resolved return type annotation of %s', node)
             return node
 
