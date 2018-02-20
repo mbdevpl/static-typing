@@ -62,7 +62,8 @@ def create_type_hint_resolver(ast_module, parser_ast_module):
             hint = parser_ast_module.fix_missing_locations(hint)
             if not self._eval:
                 return hint
-            expression = compile(ast.Expression(body=hint), '<type-hint>', 'eval')
+            expr = parser_ast_module.fix_missing_locations(parser_ast_module.Expression(body=hint))
+            expression = compile(expr, '<type-hint>', 'eval')
             return eval(expression, self._globals, self._locals)
 
         def visit_node(self, node):
