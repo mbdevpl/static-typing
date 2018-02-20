@@ -34,7 +34,7 @@ StaticallyTypedFor = {ast_module: create_for(ast_module)
                       for ast_module in (ast, typed_ast.ast3)}
 
 
-#class StaticallyTypedIf(ast_module.If, StaticallyTyped):
+# class StaticallyTypedIf(ast_module.If, StaticallyTyped):
 #
 #    _type_fields = ('if_true_vars', 'if_false_vars')
 #
@@ -47,7 +47,7 @@ StaticallyTypedFor = {ast_module: create_for(ast_module)
 #        pass
 
 
-#class StaticallyTypedWhile(ast_module.While, StaticallyTyped):
+# class StaticallyTypedWhile(ast_module.While, StaticallyTyped):
 #
 #    _type_fields = ()
 #

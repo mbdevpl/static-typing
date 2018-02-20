@@ -42,14 +42,14 @@ def create_class_def(ast_module):
             getattr(self, self.kind_mapping[method._kind])[method.name] = method
             if method._kind is not FunctionKind.Constructor:
                 return
-            for k, v_set in method._nonlocal_assignments.items():
-                if isinstance(k, ast_module.Attribute) \
-                        and isinstance(k.value, ast_module.Name) \
-                        and k.value.id == 'self':
-                    if not v_set:
-                        v_set = {None}
-                    for v in v_set:
-                        self._add_var('_instance_fields', k.attr, v)
+            for key, value_set in method._nonlocal_assignments.items():
+                if isinstance(key, ast_module.Attribute) \
+                        and isinstance(key.value, ast_module.Name) \
+                        and key.value.id == 'self':
+                    if not value_set:
+                        value_set = {None}
+                    for value in value_set:
+                        self._add_var('_instance_fields', key.attr, value)
 
         def _add_var(self, var_place: str, var_name: str, type_info: t.Any):
             # , scope: t.Any = None
@@ -69,15 +69,15 @@ def create_class_def(ast_module):
                     self._add_method(node)
                 elif isinstance(node, ast_module.Assign):
                     assert isinstance(node, StaticallyTypedAssign[ast_module]), type(node)
-                    for k, v in node._vars.items():
-                        if isinstance(k, ast_module.Name):
-                            self._add_var('_class_fields', k.id, v)
+                    for key, values in node._vars.items():
+                        if isinstance(key, ast_module.Name):
+                            self._add_var('_class_fields', key.id, values)
                 elif (ast_module is not ast or sys.version_info[:2] >= (3, 6)) \
                         and isinstance(node, ast_module.AnnAssign):
                     assert isinstance(node, StaticallyTypedAnnAssign[ast_module]), type(node)
-                    for k, v in node._vars.items():
-                        if isinstance(k, ast_module.Name):
-                            self._add_var('_class_fields', k.id, v)
+                    for key, values in node._vars.items():
+                        if isinstance(key, ast_module.Name):
+                            self._add_var('_class_fields', key.id, values)
 
     return StaticallyTypedClassDefClass
 

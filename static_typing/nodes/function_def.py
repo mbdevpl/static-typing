@@ -131,11 +131,11 @@ def create_function_def(ast_module):
                         assert isinstance(node, StaticallyTypedWith[ast_module]), type(node)
                         variables += list(node._context_vars.items())
 
-            for k, v in variables:
-                if isinstance(k, ast_module.Name):
-                    self._add_var_type_info(self._local_vars, k.id, v)
+            for var, values in variables:
+                if isinstance(var, ast_module.Name):
+                    self._add_var_type_info(self._local_vars, var.id, values)
                 else:
-                    self._add_var_type_info(self._nonlocal_assignments, k, v)
+                    self._add_var_type_info(self._nonlocal_assignments, var, values)
 
     return StaticallyTypedFunctionDefClass
 
