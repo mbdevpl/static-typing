@@ -8,6 +8,7 @@ import typing as t
 
 import ordered_set
 import typed_ast.ast3
+import typed_astunparse
 
 from .statically_typed import StaticallyTyped
 from .declaration import StaticallyTypedAssign, StaticallyTypedAnnAssign
@@ -69,9 +70,11 @@ def create_function_def(ast_module):
                     'staticmethod': FunctionKind.StaticMethod}.get(
                         decorator.id, FunctionKind.Undetermined)
             else:
-                raise NotImplementedError('no support for many decorators')
+                raise NotImplementedError('no support for many decorators:\n{}'
+                                          .format(self.decorator_list))
             if self._kind is FunctionKind.Undetermined:
-                raise NotImplementedError('could not determine function kind')
+                raise NotImplementedError('could not determine function kind:\n{}'
+                                          .format(typed_astunparse.dump(self)))
 
         def _add_params_type_info(self):
             args, vararg, kwonlyargs, kw_defaults, kwarg, defaults = \
