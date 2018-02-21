@@ -101,6 +101,24 @@ class Tests(unittest.TestCase):
                         self.assertDictEqual(function_local_vars, function._local_vars)
                     _LOG.info('%s', function)
 
+    def test_unsupported_functions(self):
+        examples = [
+            '@my_decorator\ndef my_function():\n    pass\n',
+            '@decorator1\n@decorator2\ndef my_function():\n    pass\n',
+            'def my_function(*args):\n    pass\n',
+            'def my_function(**kwargs):\n    pass\n',
+            'def my_function(*, kw_only_arg=None):\n    pass\n']
+        for ast_module in AST_MODULES:
+            resolver = TypeHintResolver[ast_module, ast](globals_=GLOBALS_EXTERNAL)
+            typer = StaticTyper[ast_module]()
+            for example in examples:
+                with self.subTest(ast_module=ast_module):
+                    tree = ast_module.parse(example)
+                    function = tree.body[0]
+                    function = resolver.visit(function)
+                    with self.assertRaises(NotImplementedError):
+                        function = typer.visit(function)
+
     def test_class_def(self):
         for ast_module in AST_MODULES:
             resolver = TypeHintResolver[ast_module, ast](globals_=GLOBALS_EXTERNAL)

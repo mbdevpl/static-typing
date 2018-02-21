@@ -6,6 +6,8 @@ import itertools
 import logging
 import unittest
 
+import typed_ast.ast3 as typed_ast3
+
 from static_typing.ast_manipulation.recursive_ast_visitor import RecursiveAstVisitor
 from static_typing.ast_manipulation.recursive_ast_transformer import RecursiveAstTransformer
 from static_typing.ast_manipulation.ast_transcriber import AstTranscriber
@@ -125,6 +127,20 @@ class Tests(unittest.TestCase):
                         self.assertIsInstance(resolved_hint, parser_ast_module.AST)
                         self.assertEqual(parser_ast_module.dump(resolved_hint),
                                          parser_ast_module.dump(parsed_hint))
+
+    def test_non_str_type_comment(self):
+        examples = {
+            typed_ast3.Assign(targets=[typed_ast3.Name('x', typed_ast3.Store())],
+                              value=typed_ast3.Str('universe, life, and everything'),
+                              type_comment=typed_ast3.Str('42')): logging.DEBUG,
+            typed_ast3.Assign(targets=[typed_ast3.Name('x', typed_ast3.Store())],
+                              value=typed_ast3.Str('universe, life, and everything'),
+                              type_comment=42): logging.WARNING}
+        for example, expected_level in examples.items():
+            resolver = TypeHintResolver[typed_ast3, typed_ast3](eval_=False)
+            with self.subTest(example=example, expected_level=expected_level):
+                with self.assertLogs(level=expected_level):
+                    resolver.visit(example)
 
     def test_type_hint_resolver_visit(self):
         for ast_module, parser_ast_module, eval_, globals_, locals_, preresolve \
