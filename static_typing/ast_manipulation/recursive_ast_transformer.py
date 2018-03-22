@@ -23,6 +23,9 @@ def create_recursive_ast_transformer(ast_module):
             if not self._fields_first:
                 _LOG.debug('visiting node %s', node)
                 node = self.visit_node(node)
+                if isinstance(node, list):
+                    raise NotImplementedError('rewriting one node into many is supported'
+                                              ' only for field-first transformers')
             _LOG.debug('visiting all fields of node %s', node)
             for name, value in ast_module.iter_fields(node):
                 setattr(node, name, self.generic_visit_field(node, name, value))
@@ -37,7 +40,16 @@ def create_recursive_ast_transformer(ast_module):
             if isinstance(value, (str, tuple)):
                 return self.visit_field(node, name, value)
             if isinstance(value, list):
-                return [self.visit(subnode) for subnode in value]
+                values = []
+                for subnode in value:
+                    subnode = self.visit(subnode)
+                    if isinstance(subnode, list):
+                        for actual_subnode in subnode:
+                            values.append(actual_subnode)
+                    else:
+                        values.append(subnode)
+                # values = [self.visit(subnode) for subnode in value]
+                return values
             if hasattr(value, '_fields'):
                 return self.visit(value)
             return self.visit_field(node, name, value)

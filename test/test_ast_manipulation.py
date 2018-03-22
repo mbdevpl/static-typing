@@ -13,8 +13,8 @@ from static_typing.ast_manipulation.recursive_ast_transformer import RecursiveAs
 from static_typing.ast_manipulation.ast_transcriber import AstTranscriber
 from static_typing.ast_manipulation.type_hint_resolver import TypeHintResolver
 from .examples import \
-    AST_MODULES, SOURCE_CODES, TYPE_HINTS, GLOBALS_EXTERNAL, GLOBALS_EXAMPLES, LOCALS_EXTERNAL, \
-    LOCALS_EXAMPLES
+    AST_MODULES, FUNCTIONS_SOURCE_CODES, SOURCE_CODES, TYPE_HINTS, GLOBALS_EXTERNAL, \
+    GLOBALS_EXAMPLES, LOCALS_EXTERNAL, LOCALS_EXAMPLES
 
 _LOG = logging.getLogger(__name__)
 
@@ -73,6 +73,30 @@ class Tests(unittest.TestCase):
                 self.assertNotEqual(
                     ast_module.dump(tree, include_attributes=True),
                     ast_module.dump(original_tree, include_attributes=True))
+
+    def test_transform_one_to_many(self):
+        for ast_module, fields_first, (description, example) in itertools.product(
+                AST_MODULES, (False, True), FUNCTIONS_SOURCE_CODES.items()):
+            with self.subTest(ast_module=ast_module, msg=description, example=example):
+                if description == 'function with context manager':
+                    continue  # it doesn't have any assignments
+                class TransformerClass(RecursiveAstTransformer[ast_module]):
+                    transformed_node = False
+                    transformed_field = False
+
+                    def visit_node(self, node):
+                        if isinstance(node, ast_module.Assign):
+                            return [node, node]
+                        return node
+                transformer = TransformerClass(fields_first)
+                tree = ast_module.parse(example)
+                if not fields_first:
+                    with self.assertRaises(NotImplementedError):
+                        transformer.visit(tree)
+                    continue
+                tree = transformer.visit(tree)
+                original_tree = ast_module.parse(example)
+                self.assertNotEqual(ast_module.dump(tree), ast_module.dump(original_tree))
 
     def test_ast_transcriber(self):
         for from_ast_module, to_ast_module in itertools.product(AST_MODULES, AST_MODULES):
