@@ -71,17 +71,50 @@ For more examples see `<examples.ipynb>`_ notebook.
 how it's implemented
 --------------------
 
-First of all a type hint resolver has been implemented. It uses provided Python symbol tables
-to resolve type hints into actual type objects using introspection, and stores the resolved type
-hints directly in the AST. Thus, Python type information becomes static.
+The process or static typing, which the ``augment()`` function implements, has 3 main steps:
+
+*   type hint resolution,
+*   type information combining and
+*   AST rewriting.
+
+
+type hint resolution
+~~~~~~~~~~~~~~~~~~~~
+
+In all applicable nodes, type hints are stored in fields ``type_comment``, ``annotation``
+and ``returns``. The type hint resolver reads those fields -- which themseves are either raw strings
+or ASTs.
+
+It uses provided Python symbol tables to resolve type hints into actual type objects using
+introspection.
 
 By default, the resolver uses only built-in symbols when called directly or through ``augment()``.
 However, when called through ``parse()`` it uses ``globals()`` and ``locals()`` of the caller
 by default.
 
-Secondly, new fields have been added to several AST nodes, currently these are: ``Module``,
-``FunctionDef``, ``ClassDef``, ``Assign``, ``AnnAssign``, ``For`` and ``With``. These new fields
-store useful static type information in an organized and easy-to-access manner.
+The resolved type hints are stored directly in the AST. Specifically, each resolved field is stored
+in a correspondingly named field, which is either ``resolved_type_comment``, ``resolved_annotation``
+or ``resolved_returns``.
+
+Thus, static type information becomes available in the AST.
+
+
+type information combining
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For each AST node that might contain any name declarations, an exetended version of a node
+is provided. Each extended AST node has new fields that store those declared names and type
+information associated with each name.
+
+These new fields store all type information from all resolved type hints within any local scope,
+so that a type conflict or lack of type information can be detected. Also, based on this combined
+information, type inference can be performed.
+
+Specifically, new versions of following AST nodes with new fields are provided: ``Module``,
+``FunctionDef``, ``ClassDef``, ``Assign``, ``AnnAssign``, ``For`` and ``With``. Those new versions
+have their names prefixed ``StaticallyTyped...``.
+
+A list of entities for which information is gathered in those new fields follows.
 
 For ``Module``:
 
@@ -114,8 +147,11 @@ For ``With``:
 
 *   context variables and their types
 
-Thirdly, an AST augumenting function was implemented. This function resolves type hints in the AST
-and replaces all ordinary AST nodes listed above with their extended versions.
+
+AST rewriting
+~~~~~~~~~~~~~
+
+The AST rewriting means replacing ordinary AST nodes listed above with their extended versions.
 
 
 requirements
