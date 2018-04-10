@@ -11,7 +11,7 @@ class Package(setup_boilerplate.Package):
     description = 'add static type information to Python abstract syntax trees'
     download_url = 'https://github.com/mbdevpl/static-typing'
     classifiers = [
-        'Development Status :: 1 - Planning',
+        'Development Status :: 3 - Alpha',
         'Environment :: Console',
         'Intended Audience :: Developers',
         'Intended Audience :: Science/Research',
