@@ -17,7 +17,7 @@ import docutils.parsers.rst
 import docutils.utils
 import setuptools
 
-__updated__ = '2018-02-14'
+__updated__ = '2018-04-18'
 
 SETUP_TEMPLATE = '''"""Setup script."""
 
@@ -70,7 +70,7 @@ def parse_requirements(
     Only non-empty and non-comment lines are relevant.
     """
     requirements = []
-    with open(str(HERE.joinpath(requirements_path))) as reqs_file:
+    with HERE.joinpath(requirements_path).open() as reqs_file:
         for requirement in [line.strip() for line in reqs_file.read().splitlines()]:
             if not requirement or requirement.startswith('#'):
                 continue
@@ -259,7 +259,7 @@ class Package:
 
         Links are resolved if readme is in rst format and the package is hosted on GitHub.
         """
-        with open(str(HERE.joinpath(readme_path)), encoding=encoding) as readme_file:
+        with HERE.joinpath(readme_path).open(encoding=encoding) as readme_file:
             long_description = readme_file.read()  # type: str
 
         if readme_path.endswith('.rst') and cls.download_url.startswith('https://github.com/'):
