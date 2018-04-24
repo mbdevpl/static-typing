@@ -6,7 +6,7 @@ static-typing
 =============
 
 .. image:: https://img.shields.io/pypi/v/static-typing.svg
-    :target: https://pypi.python.org/pypi/static-typing
+    :target: https://pypi.org/project/static-typing
     :alt: package version from PyPI
 
 .. image:: https://travis-ci.org/mbdevpl/static-typing.svg?branch=master
