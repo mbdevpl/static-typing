@@ -4,11 +4,13 @@ import ast
 import collections.abc
 import itertools
 import logging
+import sys
 import unittest
 
 import typed_ast.ast3 as typed_ast3
 
 from static_typing.ast_manipulation.recursive_ast_visitor import RecursiveAstVisitor
+from static_typing.ast_manipulation.ast_validator import AstValidator
 from static_typing.ast_manipulation.recursive_ast_transformer import RecursiveAstTransformer
 from static_typing.ast_manipulation.ast_transcriber import AstTranscriber
 from static_typing.ast_manipulation.type_hint_resolver import TypeHintResolver
@@ -97,6 +99,43 @@ class Tests(unittest.TestCase):
                 tree = transformer.visit(tree)
                 original_tree = ast_module.parse(example)
                 self.assertNotEqual(ast_module.dump(tree), ast_module.dump(original_tree))
+
+    @unittest.skipIf(sys.version_info[:2] < (3, 6), 'fails for Python < 3.6')
+    def test_ast_validator(self):
+        for ast_module, fields_first, (description, example) in itertools.product(
+                AST_MODULES, (False, True), SOURCE_CODES.items()):
+            with self.subTest(ast_module=ast_module, msg=description, example=example):
+                validator_class = AstValidator[ast_module]
+                validator = validator_class(fields_first=fields_first)
+                tree = ast_module.parse(example)
+                validator.visit(tree)
+
+    @unittest.skipIf(sys.version_info[:2] < (3, 6), 'fails for Python < 3.6')
+    def test_ast_validator_mode(self):
+        examples = {
+            'exec': '''a = {0, 1}
+@some_decorator
+async def fun(*args, kwonly=0, **kwargs):
+    async for x in y:
+        pass
+    else:
+        pass
+    async with something as my_obj: pass
+    return
+@other_decorator
+class A(B, metaclass=C): pass
+if a > 0 and -b > 0: pass
+''',
+            'single': 'x = v[0][0]', 'eval': 'a[0:] + b[:10] + c[::2]'}
+        for ast_module, fields_first, (mode, example) in itertools.product(
+                AST_MODULES, (False, True), examples.items()):
+            with self.subTest(ast_module=ast_module, mode=mode, example=example):
+                validator_class = AstValidator[ast_module]
+                tree = ast_module.parse(example, mode=mode)
+                validator = validator_class(fields_first=fields_first, mode=mode)
+                validator.visit(tree)
+                validator = validator_class(fields_first=fields_first, mode=None)
+                validator.visit(tree)
 
     def test_ast_transcriber(self):
         for from_ast_module, to_ast_module in itertools.product(AST_MODULES, AST_MODULES):
