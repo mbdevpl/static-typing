@@ -2,6 +2,7 @@
     :language: python
 
 
+=============
 static-typing
 =============
 
@@ -35,9 +36,12 @@ Works best with ASTs from ``typed_ast`` module, however it also works with built
 
 Be advised that this is an ongoing work, and current implementation is subject to sudden changes.
 
+.. contents::
+    :backlinks: none
 
-how to use
-----------
+
+How to use
+==========
 
 You can use the ``static_typing`` module to parse the code directly using ``parse()`` function:
 
@@ -68,8 +72,8 @@ Or, you can augment existing AST using ``augment()`` function:
 For more examples see `<examples.ipynb>`_ notebook.
 
 
-how it's implemented
---------------------
+How it's implemented
+====================
 
 The process or static typing, which the ``augment()`` function implements, has 3 main steps:
 
@@ -78,8 +82,8 @@ The process or static typing, which the ``augment()`` function implements, has 3
 *   AST rewriting.
 
 
-type hint resolution
-~~~~~~~~~~~~~~~~~~~~
+Type hint resolution
+--------------------
 
 In all applicable nodes, type hints are stored in fields ``type_comment``, ``annotation``
 and ``returns``. The type hint resolver reads those fields -- which themseves are either raw strings
@@ -99,8 +103,8 @@ or ``resolved_returns``.
 Thus, static type information becomes available in the AST.
 
 
-type information combining
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+Type information combining
+--------------------------
 
 For each AST node that might contain any name declarations, an exetended version of a node
 is provided. Each extended AST node has new fields that store those declared names and type
@@ -149,13 +153,13 @@ For ``With``:
 
 
 AST rewriting
-~~~~~~~~~~~~~
+-------------
 
 The AST rewriting means replacing ordinary AST nodes listed above with their extended versions.
 
 
-requirements
-------------
+Requirements
+============
 
 Python version >= 3.4.
 
