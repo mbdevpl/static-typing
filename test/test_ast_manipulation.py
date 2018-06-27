@@ -124,7 +124,7 @@ async def fun(*args, kwonly=0, **kwargs):
     return
 @other_decorator
 class A(B, metaclass=C): pass
-if a > 0 and -b > 0: pass
+if a[:2, :4] > 0 and -b(x=5, y=6) > 0: pass
 ''',
             'single': 'x = v[0][0]', 'eval': 'a[0:] + b[:10] + c[::2]'}
         for ast_module, fields_first, (mode, example) in itertools.product(

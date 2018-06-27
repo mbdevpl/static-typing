@@ -462,13 +462,13 @@ def create_ast_validator(ast_module):
             assert isinstance(name_const.value, (bool, type(None)))
             assert name_const.value in {True, False, None}
 
-        def validate_Ellipsis(self, ellipsis: ast_module.Ellipsis):
-            pass
+        # def validate_Ellipsis(self, ellipsis: ast_module.Ellipsis):
+        #    pass
 
-        def validate_Constant(self, constant):
-            assert hasattr(constant, 'value')
-            # self.validate_constant(constant.value)
-            raise NotImplementedError()
+        # def validate_Constant(self, constant):
+        #    assert hasattr(constant, 'value')
+        #    # self.validate_constant(constant.value)
+        #    raise NotImplementedError()
 
         def validate_assignment_target(self, target):
             assert isinstance(target, self.assignment_target_types), type(target)
@@ -612,7 +612,8 @@ def create_ast_validator(ast_module):
                     # 'Pass', 'Break', 'Continue',
                     'BoolOp', 'BinOp', 'UnaryOp', 'Dict', 'Set',
                     'Call', 'Compare', 'Num', 'Str', 'Bytes', 'NameConstant',
-                    'Ellipsis', 'Constant', 'Attribute', 'Subscript', 'Name', 'List', 'Tuple',
+                    # 'Ellipsis', 'Constant',
+                    'Attribute', 'Subscript', 'Name', 'List', 'Tuple',
                     'Slice', 'ExtSlice', 'Index',
                     'arguments', 'arg', 'alias', 'withitem'):
                 if isinstance(node, getattr(ast_module, type_name)):
