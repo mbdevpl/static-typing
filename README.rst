@@ -72,6 +72,19 @@ Or, you can augment existing AST using ``augment()`` function:
 For more examples see `<examples.ipynb>`_ notebook.
 
 
+AST manipulation
+----------------
+
+Additionally to the main features, the library contains ``static_typing.ast_manipulation``
+module which contains low-level tools and building blocks allowing for:
+
+*   recursive AST traversal,
+*   AST validation,
+*   recursive AST transformations,
+*   AST transcribing (from ``typed_ast`` to built-in ``ast`` and vice versa) and
+*   resolving type hints (described in detail below).
+
+
 How it's implemented
 ====================
 
