@@ -81,6 +81,24 @@ class Tests(unittest.TestCase):
                     module = typer.visit(tree)
                     self.assertIsInstance(module, StaticallyTypedModule[ast_module])
 
+    def test_module_vars(self):
+        codes = [
+            "x = 1  # type: int\ny = 1.0\nz = 'one'\n\neggs.spam = ham\n",
+            "for x in range(10):  # type: int\n    y = 1.0\nwith read() as z:\n    eggs.spam = ham",
+            "x = 0\nx = 1\ny = 0\nz = [0]\nz[0] = 1"]
+        if sys.version_info[:2] >= (3, 6):
+            codes.append("x: int = 1\ny = 1.0\nz = 'one'\n\neggs.spam = ham\n")
+        for ast_module in AST_MODULES:
+            resolver = TypeHintResolver[ast_module, ast](globals_=GLOBALS_EXTERNAL)
+            typer = StaticTyper[ast_module]()
+            for code in codes:
+                with self.subTest(ast_module=ast_module, code=code):
+                    tree = ast_module.parse(code)
+                    tree = resolver.visit(tree)
+                    module = typer.visit(tree)
+                    self.assertEqual(len(module._module_vars), 3)
+                    self.assertEqual(len(module._nonlocal_assignments), 1)
+
     def test_function_def(self):
         for ast_module in AST_MODULES:
             resolver = TypeHintResolver[ast_module, ast](globals_=GLOBALS_EXTERNAL)

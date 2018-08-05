@@ -119,20 +119,7 @@ def create_function_def(ast_module):
 
             variables = []
             for stmt in self.body:
-                for node in ast_module.walk(stmt):
-                    if isinstance(node, ast_module.Assign):
-                        assert isinstance(node, StaticallyTypedAssign[ast_module]), type(node)
-                        variables += list(node._vars.items())
-                    elif (ast_module is not ast or sys.version_info[:2] >= (3, 6)) \
-                            and isinstance(node, ast_module.AnnAssign):
-                        assert isinstance(node, StaticallyTypedAnnAssign[ast_module]), type(node)
-                        variables += list(node._vars.items())
-                    elif isinstance(node, ast_module.For):
-                        assert isinstance(node, StaticallyTypedFor[ast_module]), type(node)
-                        variables += list(node._index_vars.items())
-                    elif isinstance(node, ast_module.With):
-                        assert isinstance(node, StaticallyTypedWith[ast_module]), type(node)
-                        variables += list(node._context_vars.items())
+                variables += find_all_stores[ast_module](stmt)
 
             for var, values in variables:
                 if isinstance(var, ast_module.Name):
@@ -145,3 +132,29 @@ def create_function_def(ast_module):
 
 StaticallyTypedFunctionDef = {ast_module: create_function_def(ast_module)
                               for ast_module in (ast, typed_ast.ast3)}
+
+
+def create_find_all_stores(ast_module):
+    def find_all_stores(tree: StaticallyTyped[ast_module]) -> t.List[StaticallyTyped[ast_module]]:
+        variables = []
+        for node in ast_module.walk(tree):
+            if isinstance(node, ast_module.Assign):
+                assert isinstance(node, StaticallyTypedAssign[ast_module]), type(node)
+                variables += list(node._vars.items())
+            elif (ast_module is not ast or sys.version_info[:2] >= (3, 6)) \
+                    and isinstance(node, ast_module.AnnAssign):
+                assert isinstance(node, StaticallyTypedAnnAssign[ast_module]), type(node)
+                variables += list(node._vars.items())
+            elif isinstance(node, ast_module.For):
+                assert isinstance(node, StaticallyTypedFor[ast_module]), type(node)
+                variables += list(node._index_vars.items())
+            elif isinstance(node, ast_module.With):
+                assert isinstance(node, StaticallyTypedWith[ast_module]), type(node)
+                variables += list(node._context_vars.items())
+        return variables
+
+    return find_all_stores
+
+
+find_all_stores = {ast_module: create_find_all_stores(ast_module)
+                   for ast_module in (ast, typed_ast.ast3)}
