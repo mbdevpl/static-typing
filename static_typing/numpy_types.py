@@ -22,10 +22,13 @@ def create_typed_numpy_ndarray(
                 .format(shape, dims))
 
         if required_shape is not None:
-            if any((req_dim is not Ellipsis and dim != req_dim)
-                   for dim, req_dim in zip(shape, required_shape)):
-                raise ValueError('actual ndarray shape {} conflicts with its required shape of {}'
-                                 .format(shape, required_shape))
+            for i, (dim, req_dim) in enumerate(zip(shape, required_shape)):
+                if req_dim is Ellipsis:
+                    continue
+                if dim != req_dim:
+                    raise ValueError('actual ndarray shape {} conflicts with its required shape'
+                                     ' of {}, in (zero-based) dimension {}'
+                                     .format(shape, required_shape, i))
 
         try:
             dtype = dtype_loc[0][dtype_loc[1]]
@@ -46,26 +49,33 @@ class typed_numpy_ndarray_factory(dict):
 
     """Factory of statically typed versions of numpy.ndarray."""
 
-    def __missing__(self, key: t.Union[t.Tuple[int, type], t.Tuple[int, type, t.Sequence[int]]]):
+    def _check_key(self, key):
         if not isinstance(key, tuple):
             raise TypeError('key={} of bad type {} was given'.format(repr(key), type(key)))
         if len(key) < 2 or len(key) > 3:
             raise ValueError('{}'.format(key))
         if not isinstance(key[0], int):
-            raise TypeError()
+            raise TypeError('in key={}, dimensions of bad type {} given'
+                            ' -- must be specified as int, generic dimensions not supported yet'
+                            .format(repr(key), type(key[0])))
         if key[0] <= 0:
-            raise ValueError()
+            raise ValueError('dimensions count cannot be negative')
         if not isinstance(key[1], type):
-            raise TypeError()
+            raise TypeError('array data type must be a type')
         if len(key) == 3:
             if not isinstance(key[2], tuple):
                 raise TypeError()
             if len(key[2]) != key[0]:
-                raise ValueError()
+                raise ValueError('shape of the array does not match its dimensionality')
             if any(k is not Ellipsis and not isinstance(k, int) for k in key[2]):
                 raise TypeError()
             if any(k is not Ellipsis and k <= 0 for k in key[2]):
                 raise ValueError()
+
+    def __missing__(self, key: t.Union[
+            t.Tuple[int, type],
+            t.Tuple[int, type, t.Sequence[t.Union[int, type(Ellipsis)]]]]):
+        self._check_key(key)
         value = create_typed_numpy_ndarray(*key)
         self[key] = value
         return value
