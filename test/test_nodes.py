@@ -68,7 +68,7 @@ class Tests(unittest.TestCase):
                 with self.subTest(ast_module=ast_module, msg=description, example=example):
                     tree = ast_module.parse(example)
                     module = resolver.visit(tree)
-                    module = typer.visit(tree)
+                    module = typer.visit(module)
                     self.assertIsInstance(module, StaticallyTypedModule[ast_module])
                     self.assertEqual(len(module._classes), classes_count)
                     self.assertEqual(len(module._functions), functions_count)
@@ -78,7 +78,7 @@ class Tests(unittest.TestCase):
                 with self.subTest(ast_module=ast_module, msg=description, example=example):
                     tree = ast_module.parse(example)
                     module = resolver.visit(tree)
-                    module = typer.visit(tree)
+                    module = typer.visit(module)
                     self.assertIsInstance(module, StaticallyTypedModule[ast_module])
 
     def test_module_vars(self):
@@ -94,8 +94,8 @@ class Tests(unittest.TestCase):
             for code in codes:
                 with self.subTest(ast_module=ast_module, code=code):
                     tree = ast_module.parse(code)
-                    tree = resolver.visit(tree)
-                    module = typer.visit(tree)
+                    module = resolver.visit(tree)
+                    module = typer.visit(module)
                     self.assertEqual(len(module._module_vars), 3)
                     self.assertEqual(len(module._nonlocal_assignments), 1)
 
