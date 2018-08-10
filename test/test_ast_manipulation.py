@@ -16,7 +16,7 @@ from static_typing.ast_manipulation.ast_transcriber import AstTranscriber
 from static_typing.ast_manipulation.type_hint_resolver import TypeHintResolver
 from .examples import \
     AST_MODULES, FUNCTIONS_SOURCE_CODES, SOURCE_CODES, TYPE_HINTS, GLOBALS_EXTERNAL, \
-    GLOBALS_EXAMPLES, LOCALS_EXTERNAL, LOCALS_EXAMPLES
+    GLOBALS_EXAMPLES, LOCALS_EXTERNAL, LOCALS_EXAMPLES, VARIETY_EXAMPLES
 
 _LOG = logging.getLogger(__name__)
 
@@ -110,32 +110,42 @@ class Tests(unittest.TestCase):
                 tree = ast_module.parse(example)
                 validator.visit(tree)
 
+    def test_ast_validator_synthetic(self):
+        examples = (
+            (typed_ast3, typed_ast3.FormattedValue(typed_ast3.Str('value'), None, None)),
+            (typed_ast3, typed_ast3.keyword(None, typed_ast3.Name('value', typed_ast3.Load()))),
+            (typed_ast3, typed_ast3.ImportFrom('pkg', [typed_ast3.alias('module', None)], None)))
+        for fields_first, (ast_module, example) in itertools.product((False, True), examples):
+            with self.subTest(example=example):
+                # tree = ast_module.Expression(example)
+                validator = AstValidator[ast_module](fields_first=fields_first, mode=None)
+                validator.visit(example)
+
     @unittest.skipIf(sys.version_info[:2] < (3, 6), 'fails for Python < 3.6')
     def test_ast_validator_mode(self):
-        examples = {
-            'exec': '''a = {0, 1}
-@some_decorator
-async def fun(*args, kwonly=0, **kwargs):
-    async for x in y:
-        pass
-    else:
-        pass
-    async with something as my_obj: pass
-    return
-@other_decorator
-class A(B, metaclass=C): pass
-if a[:2, :4] > 0 and -b(x=5, y=6) > 0: pass
-''',
-            'single': 'x = v[0][0]', 'eval': 'a[0:] + b[:10] + c[::2]'}
         for ast_module, fields_first, (mode, example) in itertools.product(
-                AST_MODULES, (False, True), examples.items()):
+                AST_MODULES, (False, True), VARIETY_EXAMPLES.items()):
             with self.subTest(ast_module=ast_module, mode=mode, example=example):
                 validator_class = AstValidator[ast_module]
                 tree = ast_module.parse(example, mode=mode)
                 validator = validator_class(fields_first=fields_first, mode=mode)
                 validator.visit(tree)
+                validator = validator_class(fields_first=fields_first, mode='strict')
+                validator.visit(tree)
                 validator = validator_class(fields_first=fields_first, mode=None)
                 validator.visit(tree)
+
+    def test_ast_validator_missing(self):
+        examples = (
+            typed_ast3.Constant(42),
+            typed_ast3.Constant(3.1415),
+            typed_ast3.Constant('my_constant'))
+        for fields_first, example in itertools.product((False, True), examples):
+            with self.subTest(example=example):
+                tree = typed_ast3.Expression(example)
+                validator = AstValidator[typed_ast3](fields_first=fields_first, mode=None)
+                with self.assertLogs(None, logging.WARNING):
+                    validator.visit(tree)
 
     def test_ast_transcriber(self):
         for from_ast_module, to_ast_module in itertools.product(AST_MODULES, AST_MODULES):
@@ -180,7 +190,11 @@ if a[:2, :4] > 0 and -b(x=5, y=6) > 0: pass
                         with self.assertRaises(NameError):
                             resolver.resolve_type_hint(hint)
                         continue
-                    resolved_hint = resolver.resolve_type_hint(hint)
+                    if isinstance(hint, type):
+                        with self.assertLogs(None, logging.WARNING):
+                            resolved_hint = resolver.resolve_type_hint(hint)
+                    else:
+                        resolved_hint = resolver.resolve_type_hint(hint)
                     if not resolvable:
                         self.assertIs(resolved_hint, hint)
                     elif eval_:

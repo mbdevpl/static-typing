@@ -26,7 +26,7 @@ static-typing
     :target: https://codecov.io/gh/mbdevpl/static-typing
     :alt: test coverage from Codecov
 
-.. image:: https://img.shields.io/pypi/l/static-typing.svg
+.. image:: https://img.shields.io/github/license/mbdevpl/static-typing.svg
     :target: https://github.com/mbdevpl/static-typing/blob/master/NOTICE
     :alt: license
 
@@ -135,7 +135,7 @@ A list of entities for which information is gathered in those new fields follows
 
 For ``Module``:
 
-*   defined constants (TODO)
+*   defined variables
 *   defined functions
 *   defined classes
 

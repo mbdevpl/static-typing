@@ -298,3 +298,44 @@ LOCALS_CLEAR = {}
 LOCALS_EXTERNAL = {'np': np, 'st': st, 't': t}
 
 LOCALS_EXAMPLES = (LOCALS_NONE, LOCALS_CLEAR, LOCALS_EXTERNAL)
+
+VARIETY_EXAMPLES = {
+    'exec': '''a = {0, 1}
+from typing import Any
+from . import spam
+from .ham import eggs
+from ........somewhere import something
+@some_decorator
+async def fun(*args, kwonly=0, **kwargs):
+    async for x in y:
+        return (*args)
+    else:
+        return
+    async with something as my_obj: pass
+    await spam
+@other_decorator
+class A(B, metaclass=C): pass
+if a[:2, :4] > 0 and -b(x=5, y=6) > 0: pass
+while False:
+    del a[...]
+a += 0 if True else 1
+try:
+    global spam
+    nonlocal eggs
+    raise
+    raise spam
+    raise spam from eggs
+except ValueError as ham:
+    assert [_ for _ in f'spam {spam} lovely {spam:4}']
+    lambda spam: {_ for _ in spam}
+except KeyError:
+    assert False, spam
+except:
+    pass
+finally:
+    yield
+    yield {a: b for a, b in eggs}
+    yield from (_ for _ in spam)
+''',
+    'single': 'x = v[0][0]',
+    'eval': 'a[0:] + b[:10] + c[::2]'}
