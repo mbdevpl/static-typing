@@ -38,8 +38,8 @@ def create_recursive_ast_visitor(ast_module):
             if isinstance(value, (str, tuple)):
                 self.visit_field(node, name, value)
             elif isinstance(value, list):
-                for subnode in value:
-                    self.visit(subnode)
+                for i, subnode in enumerate(value):
+                    self.generic_visit_field(value, i, subnode)
             elif hasattr(value, '_fields'):
                 self.visit(value)
             else:
