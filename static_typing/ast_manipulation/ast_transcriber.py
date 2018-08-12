@@ -29,7 +29,12 @@ def create_ast_transcriber(from_ast_module, to_ast_module):
             _LOG.debug('target type is %s', target_type)
             node_fields = {k: v for k, v in from_ast_module.iter_fields(node)}
             _LOG.debug('constructor params are %s', node_fields)
-            return target_type(**node_fields)
+            transcribed_node = target_type(**node_fields)
+            to_ast_module.copy_location(transcribed_node, node)
+            custom_fields = set(vars(node)) - set(node._fields) - set(node._attributes)
+            for custom_field in custom_fields:
+                setattr(transcribed_node, custom_field, getattr(node, custom_field))
+            return transcribed_node
 
     return AstTranscriberClass
 
