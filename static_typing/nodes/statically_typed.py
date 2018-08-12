@@ -4,6 +4,8 @@ import ast
 
 import typed_ast.ast3
 
+from ..ast_manipulation.ast_transcriber import transcribe
+
 
 def create_statically_typed(ast_module):
     """Create statically typed AST node template class based on a given AST module."""
@@ -18,11 +20,8 @@ def create_statically_typed(ast_module):
 
         @classmethod
         def from_other(cls, node: ast_module.AST):
-            node_fields = {k: v for k, v in ast_module.iter_fields(node)}
-            for resolved_field in cls._resolved_fields:
-                if hasattr(node, resolved_field):
-                    node_fields[resolved_field] = getattr(node, resolved_field)
-            return cls(**node_fields)
+            new_node = transcribe(ast_module, node, ast_module, cls, cls._resolved_fields)
+            return new_node
 
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
