@@ -6,6 +6,8 @@
 static-typing
 =============
 
+Augument Python 3 abstract syntax trees (ASTs) with static type information.
+
 .. image:: https://img.shields.io/pypi/v/static-typing.svg
     :target: https://pypi.org/project/static-typing
     :alt: package version from PyPI
@@ -30,7 +32,14 @@ static-typing
     :target: https://github.com/mbdevpl/static-typing/blob/master/NOTICE
     :alt: license
 
-Attempt to add static type information to Python abstract syntax trees (ASTs).
+Python is a dynamically typed programming language.
+However, much of typically seen Python code would work even if it was statically typed!
+
+With this package, one can insert static type information into Python abstract syntax trees (ASTs),
+so assuming that given code would work if Python was statically typed,
+one can reason about the types in the code statically, ahead of execution.
+
+Such augmented AST is mainly intended for analysis/consumption using other tools.
 
 Works best with ASTs from ``typed_ast`` module, however it also works with built-in ``ast`` module.
 
