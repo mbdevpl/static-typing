@@ -735,39 +735,6 @@ def create_ast_validator(ast_module):
                     getattr(self, validator_name)(node)
                     return
 
-            # for type_name in (
-            #         # module_types
-            #         'Module', 'Interactive', 'Expression',
-            #         # statement_types
-            #         'FunctionDef', 'AsyncFunctionDef', 'ClassDef', 'Return', 'Delete',
-            #         'Assign', 'AugAssign', 'AnnAssign',
-            #         'For', 'AsyncFor', 'While', 'If', 'With','AsyncWith', 'Raise','Try', 'Assert',
-            #         'Import', 'ImportFrom', 'Global', 'Nonlocal', 'Expr',
-            #         # 'Pass', 'Break', 'Continue',
-            #         # expression_types
-            #         'BoolOp', 'BinOp', 'UnaryOp', 'Lambda', 'IfExp', 'Dict', 'Set',
-            #         'ListComp', 'SetComp', 'DictComp', 'GeneratorExp', 'Await',
-            #         'Yield', 'YieldFrom',
-            #         'Compare', 'Call', 'Num', 'Str', 'FormattedValue', 'JoinedStr',
-            #         'Bytes', 'NameConstant',
-            #         # 'Ellipsis', 'Constant',
-            #         # assignment_target_types (added to expression_types)
-            #         'Attribute', 'Subscript', 'Starred', 'Name', 'List', 'Tuple',
-            #         # 'Load', 'Store', 'Del', 'AugLoad', 'AugStore', 'Param',
-            #         # slice_types
-            #         'Slice', 'ExtSlice', 'Index',
-            #         # 'And', 'Or',
-            #         # 'Add', 'Sub', 'Mult', 'MatMult', 'Div', Mod', 'Pow',
-            #         # 'LShift', 'RShift', 'BitOr', 'BitXor', 'BitAnd', 'FloorDiv',
-            #         # 'Invert', 'Not', 'UAdd', 'USub',
-            #         # 'Eq', 'NotEq', 'Lt', 'LtE', 'Gt', 'GtE', 'Is', 'IsNot', 'In', 'NotIn',
-            #         # inner_types
-            #         'comprehension', 'excepthandler',
-            #         'arguments', 'arg', 'keyword', 'alias', 'withitem'):
-            #     if isinstance(node, getattr(ast_module, type_name)):
-            #         getattr(self, 'validate_{}'.format(type_name))(node)
-            #         return
-
             _LOG.warning('no validatation available for %s', type(node))
 
         def visit(self, node):
