@@ -5,3 +5,4 @@ include dev_requirements.txt
 include LICENSE
 include NOTICE
 recursive-include test/examples *.*
+include ./*/py.typed
