@@ -3,6 +3,7 @@
 # pylint: disable=invalid-name
 
 import ast
+import itertools
 import logging
 import sys
 import typing as t
@@ -186,7 +187,12 @@ def create_ast_validator(ast_module):
             ast_module.GtE, ast_module.Is, ast_module.IsNot, ast_module.In, ast_module.NotIn)
         """
             cmpop = Eq | NotEq | Lt | LtE | Gt | GtE | Is | IsNot | In | NotIn
+        """
 
+        inner_types = (
+            ast_module.comprehension, ast_module.excepthandler, ast_module.arguments,
+            ast_module.arg, ast_module.keyword, ast_module.alias, ast_module.withitem)
+        """
             comprehension = (expr target, expr iter, expr* ifs, int is_async)
 
             excepthandler = ExceptHandler(expr? type, identifier? name, stmt* body)
@@ -718,35 +724,48 @@ def create_ast_validator(ast_module):
             """Validate just the given node."""
             assert isinstance(node, ast_module.AST), type(node)
 
-            for type_name in (
-                    'Module', 'Interactive', 'Expression',
-                    'FunctionDef', 'AsyncFunctionDef', 'ClassDef', 'Return', 'Delete',
-                    'Assign', 'AugAssign', 'AnnAssign',
-                    'For', 'AsyncFor', 'While', 'If', 'With', 'AsyncWith', 'Raise', 'Try', 'Assert',
-                    'Import', 'ImportFrom', 'Global', 'Nonlocal', 'Expr',
-                    # 'Pass', 'Break', 'Continue',
-                    'BoolOp', 'BinOp', 'UnaryOp', 'Lambda', 'IfExp', 'Dict', 'Set',
-                    'ListComp', 'SetComp', 'DictComp', 'GeneratorExp', 'Await',
-                    'Yield', 'YieldFrom',
-                    'Compare', 'Call', 'Num', 'Str', 'FormattedValue', 'JoinedStr',
-                    'Bytes', 'NameConstant',
-                    # 'Ellipsis', 'Constant',
-                    'Attribute', 'Subscript', 'Starred', 'Name', 'List', 'Tuple',
-                    # 'Load', 'Store', 'Del', 'AugLoad', 'AugStore', 'Param',
-                    'Slice', 'ExtSlice', 'Index',
-                    # 'And', 'Or',
-                    # 'Add', 'Sub', 'Mult', 'MatMult', 'Div', Mod', 'Pow',
-                    # 'LShift', 'RShift', 'BitOr', 'BitXor', 'BitAnd', 'FloorDiv',
-                    # 'Invert', 'Not', 'UAdd', 'USub',
-                    # 'Eq', 'NotEq', 'Lt', 'LtE', 'Gt', 'GtE', 'Is', 'IsNot', 'In', 'NotIn',
-                    'comprehension', 'excepthandler',
-                    'arguments', 'arg', 'keyword', 'alias', 'withitem'):
-                if isinstance(node, getattr(ast_module, type_name)):
-                    getattr(self, 'validate_{}'.format(type_name))(node)
-                    return
-
             if isinstance(node, self.empty_nodes):
                 return
+
+            for node_type in itertools.chain(
+                    self.module_types, self.statement_types, self.expression_types,
+                    self.slice_types, self.inner_types):
+                if isinstance(node, node_type):
+                    getattr(self, 'validate_{}'.format(node_type.__name__))(node)
+                    return
+
+            # for type_name in (
+            #         # module_types
+            #         'Module', 'Interactive', 'Expression',
+            #         # statement_types
+            #         'FunctionDef', 'AsyncFunctionDef', 'ClassDef', 'Return', 'Delete',
+            #         'Assign', 'AugAssign', 'AnnAssign',
+            #         'For', 'AsyncFor', 'While', 'If', 'With','AsyncWith', 'Raise','Try', 'Assert',
+            #         'Import', 'ImportFrom', 'Global', 'Nonlocal', 'Expr',
+            #         # 'Pass', 'Break', 'Continue',
+            #         # expression_types
+            #         'BoolOp', 'BinOp', 'UnaryOp', 'Lambda', 'IfExp', 'Dict', 'Set',
+            #         'ListComp', 'SetComp', 'DictComp', 'GeneratorExp', 'Await',
+            #         'Yield', 'YieldFrom',
+            #         'Compare', 'Call', 'Num', 'Str', 'FormattedValue', 'JoinedStr',
+            #         'Bytes', 'NameConstant',
+            #         # 'Ellipsis', 'Constant',
+            #         # assignment_target_types (added to expression_types)
+            #         'Attribute', 'Subscript', 'Starred', 'Name', 'List', 'Tuple',
+            #         # 'Load', 'Store', 'Del', 'AugLoad', 'AugStore', 'Param',
+            #         # slice_types
+            #         'Slice', 'ExtSlice', 'Index',
+            #         # 'And', 'Or',
+            #         # 'Add', 'Sub', 'Mult', 'MatMult', 'Div', Mod', 'Pow',
+            #         # 'LShift', 'RShift', 'BitOr', 'BitXor', 'BitAnd', 'FloorDiv',
+            #         # 'Invert', 'Not', 'UAdd', 'USub',
+            #         # 'Eq', 'NotEq', 'Lt', 'LtE', 'Gt', 'GtE', 'Is', 'IsNot', 'In', 'NotIn',
+            #         # inner_types
+            #         'comprehension', 'excepthandler',
+            #         'arguments', 'arg', 'keyword', 'alias', 'withitem'):
+            #     if isinstance(node, getattr(ast_module, type_name)):
+            #         getattr(self, 'validate_{}'.format(type_name))(node)
+            #         return
 
             _LOG.warning('no validatation available for %s', type(node))
 
