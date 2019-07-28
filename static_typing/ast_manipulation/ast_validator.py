@@ -730,8 +730,9 @@ def create_ast_validator(ast_module):
             for node_type in itertools.chain(
                     self.module_types, self.statement_types, self.expression_types,
                     self.slice_types, self.inner_types):
-                if isinstance(node, node_type):
-                    getattr(self, 'validate_{}'.format(node_type.__name__))(node)
+                validator_name = 'validate_{}'.format(node_type.__name__)
+                if isinstance(node, node_type) and hasattr(self, validator_name):
+                    getattr(self, validator_name)(node)
                     return
 
             # for type_name in (
