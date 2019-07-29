@@ -7,3 +7,9 @@ from .class_def import StaticallyTypedClassDef
 from .declaration import StaticallyTypedAssign, StaticallyTypedAnnAssign
 from .context import StaticallyTypedFor, StaticallyTypedWith
 # , StaticallyTypedWhile, StaticallyTypedIf
+
+__all__ = [
+    'StaticallyTyped', 'StaticallyTypedModule',
+    'StaticallyTypedFunctionDef', 'StaticallyTypedClassDef',
+    'StaticallyTypedAssign', 'StaticallyTypedAnnAssign',
+    'StaticallyTypedFor', 'StaticallyTypedWith']
