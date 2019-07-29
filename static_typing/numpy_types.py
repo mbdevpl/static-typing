@@ -4,6 +4,8 @@ import typing as t
 
 import numpy as np
 
+from .generic import GenericVar
+
 
 def create_typed_numpy_ndarray(
         dims: int, data_type: t.ClassVar, required_shape: t.Optional[t.Sequence[int]] = None):
@@ -24,6 +26,10 @@ def create_typed_numpy_ndarray(
         if required_shape is not None:
             for i, (dim, req_dim) in enumerate(zip(shape, required_shape)):
                 if req_dim is Ellipsis:
+                    continue
+                if isinstance(req_dim, GenericVar):
+                    if not req_dim.has_value:
+                        req_dim.value = dim
                     continue
                 if dim != req_dim:
                     raise ValueError('actual ndarray shape {} conflicts with its required shape'
@@ -67,14 +73,14 @@ class typed_numpy_ndarray_factory(dict):
                 raise TypeError()
             if len(key[2]) != key[0]:
                 raise ValueError('shape of the array does not match its dimensionality')
-            if any(k is not Ellipsis and not isinstance(k, int) for k in key[2]):
+            if any(k is not Ellipsis and not isinstance(k, (int, GenericVar)) for k in key[2]):
                 raise TypeError()
-            if any(k is not Ellipsis and k <= 0 for k in key[2]):
+            if any(k is not Ellipsis and not isinstance(k, GenericVar) and k <= 0 for k in key[2]):
                 raise ValueError()
 
     def __missing__(self, key: t.Union[
             t.Tuple[int, type],
-            t.Tuple[int, type, t.Sequence[t.Union[int, type(Ellipsis)]]]]):
+            t.Tuple[int, type, t.Sequence[t.Union[int, type(Ellipsis), GenericVar]]]]):
         self._check_key(key)
         value = create_typed_numpy_ndarray(*key)
         self[key] = value

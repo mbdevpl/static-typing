@@ -6,6 +6,8 @@ import unittest
 import numpy as np
 
 from static_typing.numpy_types import ndarray
+from static_typing.generic import GenericVar
+
 
 class Tests(unittest.TestCase):
 
@@ -72,3 +74,28 @@ class Tests(unittest.TestCase):
                         ndarray[key](shape + (10,), **kwargs)
                     with self.assertRaises(TypeError):
                         ndarray[key](shape, dtype=object)
+
+    def test_numpy_generic(self):
+        for data_type, dimensionality in itertools.product((bool, int, float), (1, 2)):
+            shape = tuple(3 for _ in range(dimensionality))
+
+            var = GenericVar()
+            generic_shape = tuple(var for _ in range(dimensionality))
+            self.assertFalse(var.has_value)
+            var.value = 3
+            self.assertTrue(var.has_value)
+            typed = ndarray[dimensionality, data_type, generic_shape](shape)
+            self.assertTupleEqual(typed.shape, shape)
+
+            var = GenericVar(3)
+            shape = tuple(3 for _ in range(dimensionality))
+            generic_shape = tuple(var for _ in range(dimensionality))
+            typed = ndarray[dimensionality, data_type, generic_shape](shape)
+            self.assertTupleEqual(typed.shape, shape)
+
+            var = GenericVar()
+            generic_shape = tuple(var for _ in range(dimensionality))
+            typed = ndarray[dimensionality, data_type, generic_shape](shape)
+            self.assertTupleEqual(typed.shape, shape)
+            self.assertTrue(var.has_value)
+            self.assertEqual(var.value, 3)
