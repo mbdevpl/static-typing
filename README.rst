@@ -45,6 +45,9 @@ Works best with ASTs from ``typed_ast`` module, however it also works with built
 
 Be advised that this is an ongoing work, and current implementation is subject to sudden changes.
 
+Support of ``typed_ast`` will be dropped after Python 3.8 is released, as its functionality will be
+merged into the built-in AST parser.
+
 .. contents::
     :backlinks: none
 
